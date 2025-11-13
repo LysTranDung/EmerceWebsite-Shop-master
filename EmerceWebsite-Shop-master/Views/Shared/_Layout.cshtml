@@ -1,0 +1,144 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+ <!-- Thêm thuộc tính lang -->
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>@ViewBag.Title - Admin Dashboard</title>
+
+    <!-- Xóa 'user-scalable=yes' để cải thiện khả năng truy cập -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Các file CSS được bundle -->
+    @Styles.Render("~/Content/css")
+    <link rel="stylesheet" href="~/Content/adminlte.css" />
+
+    <!-- Các file CSS từ CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/styles/overlayscrollbars.min.css" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" crossorigin="anonymous" />
+</head>
+<body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary">
+    <div class="app-wrapper">
+        <!--begin::Header-->
+        <nav class="app-header navbar navbar-expand bg-body">
+            <div class="container-fluid">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <!-- Thêm aria-label để mô tả chức năng cho trình đọc màn hình -->
+                        <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button" aria-label="Toggle navigation">
+                            <i class="bi bi-list"></i>
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown user-menu">
+                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <img src="~/img/user2-160x160.jpg" class="user-image rounded-circle shadow" alt="User Avatar" />
+                            <span class="d-none d-md-inline">Alexander Pierce</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+                            <li class="user-header text-bg-primary">
+                                <img src="~/img/user2-160x160.jpg" class="rounded-circle shadow" alt="User Avatar in menu" />
+                                <p>
+                                    Alexander Pierce - Web Developer
+                                    <small>Member since Nov. 2023</small>
+                                </p>
+                            </li>
+                            <li class="user-footer">
+                                <a href="#" class="btn btn-default btn-flat">Profile</a>
+                                <a href="#" class="btn btn-default btn-flat float-end">Sign out</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <!--end::Header-->
+        <!--begin::Sidebar-->
+        <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+            <div class="sidebar-brand">
+                <a href="@Url.Action("Index", "Home")" class="brand-link">
+                    <img src="~/img/AdminLTELogo.png" alt="Project Logo" class="brand-image opacity-75 shadow" />
+                    <span class="brand-text fw-light">QLSP</span>
+                </a>
+            </div>
+            <div class="sidebar-wrapper">
+                <nav class="mt-2">
+                    <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="navigation" data-accordion="false">
+                        <li class="nav-item menu-open">
+                            <a href="#" class="nav-link active">
+                                <i class="nav-icon bi bi-box-seam-fill"></i>
+                                <p>
+                                    Quản lý Sản phẩm
+                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="@Url.Action("DSSP", "QLSP")" class="nav-link">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>DS Sản phẩm</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="@Url.Action("ThemSP", "QLSP")" class="nav-link">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Thêm mới</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+        <!--end::Sidebar-->
+        <!--begin::App Main-->
+        <main class="app-main">
+            @RenderBody()
+        </main>
+        <!--end::App Main-->
+        <!--begin::Footer-->
+        <footer class="app-footer">
+            <div class="float-end d-none d-sm-inline">Anything you want</div>
+            <strong>
+                Copyright &copy; 2014-@DateTime.Now.Year&nbsp;
+                <a href="https://adminlte.io" class="text-decoration-none">AdminLTE.io</a>.
+            </strong>
+            All rights reserved.
+        </footer>
+        <!--end::Footer-->
+    </div>
+    <!--end::App Wrapper-->
+    <!-- Scripts chung cho toàn bộ trang -->
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    <script src="~/Scripts/adminlte.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/browser/overlayscrollbars.browser.es6.min.js" crossorigin="anonymous"></script>
+
+    <!-- Script khởi tạo chung của AdminLTE -->
+    <script>
+        const SELECTOR_SIDEBAR_WRAPPER = '.sidebar-wrapper';
+        const Default = {
+            scrollbarTheme: 'os-theme-light',
+            scrollbarAutoHide: 'leave',
+            scrollbarClickScroll: true,
+        };
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebarWrapper = document.querySelector(SELECTOR_SIDEBAR_WRAPPER);
+            if (sidebarWrapper && typeof OverlayScrollbarsGlobal !== 'undefined') {
+                OverlayScrollbarsGlobal.OverlayScrollbars(sidebarWrapper, {
+                    scrollbars: {
+                        theme: Default.scrollbarTheme,
+                        autoHide: Default.scrollbarAutoHide,
+                        clickScroll: Default.scrollbarClickScroll,
+                    },
+                });
+            }
+        });
+    </script>
+
+    <!-- Vị trí để các trang con (như DSSP.cshtml) chèn script của riêng mình -->
+    @RenderSection("scripts", required: false)
+
+</body>
+</html>

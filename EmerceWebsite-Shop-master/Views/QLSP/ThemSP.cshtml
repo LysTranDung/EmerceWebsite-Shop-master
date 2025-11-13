@@ -1,0 +1,103 @@
+﻿@{
+    ViewBag.Title = "Thêm sản phẩm mới";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!--begin::App Content Header-->
+<div class="app-content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6"><h3 class="mb-0">@ViewBag.Title</h3></div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-end">
+                    <li class="breadcrumb-item"><a href="@Url.Action("DSSP", "QLSP")">Quản lý Sản phẩm</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Thêm mới</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<!--end::App Content Header-->
+<!--begin::App Content-->
+<div class="app-content">
+    <div class="container-fluid">
+        <div class="row g-4">
+            <div class="col-12">
+                <div class="card card-primary card-outline mb-4">
+                    <div class="card-header"><div class="card-title">Thông tin sản phẩm</div></div>
+                    <!--begin::Form-->
+                    <form id="form-product">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-lg-12 mb-3">
+                                    <label for="txt_ProductName" class="form-label">Tên sản phẩm</label>
+                                    <input type="text" class="form-control" name="txt_ProductName" id="txt_ProductName" placeholder="Ví dụ: Nồi cơm điện Sunhouse" />
+                                </div>
+
+                                <div class="col-lg-12 mb-3">
+                                    <label for="txt_Description" class="form-label">Mô tả sản phẩm</label>
+                                    <textarea id="txt_Description" name="txt_Description" class="form-control" rows="3"></textarea>
+                                </div>
+
+                                <div class="col-lg-4 mb-3">
+                                    <label for="txt_Price" class="form-label">Giá bán</label>
+                                    <input type="number" class="form-control" name="txt_Price" id="txt_Price" placeholder="Ví dụ: 199000" />
+                                </div>
+
+                                <div class="col-lg-4 mb-3">
+                                    <label for="txt_Stock" class="form-label">Số lượng tồn kho</label>
+                                    <input type="number" class="form-control" name="txt_Stock" id="txt_Stock" placeholder="Ví dụ: 50" />
+                                </div>
+
+                                <div class="col-lg-4 mb-3">
+                                    <label for="txt_Brand" class="form-label">Thương hiệu</label>
+                                    <input type="text" class="form-control" name="txt_Brand" id="txt_Brand" placeholder="Ví dụ: Sunhouse" />
+                                </div>
+                            </div>
+                        </div>
+                        <!--end::Body-->
+                        <!--begin::Footer-->
+                        <div class="card-footer">
+                            <button type="button" id="btn_submit_create" class="btn btn-primary">Thêm mới</button>
+                            <a href="@Url.Action("DSSP", "QLSP")" class="btn btn-secondary">Quay lại danh sách</a>
+                        </div>
+                        <!--end::Footer-->
+                    </form>
+                    <!--end::Form-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--end::App Content-->
+
+@section scripts {
+    <script>
+    $("#btn_submit_create").click(function () {
+        // Lấy dữ liệu từ form
+        var form = $('#form-product')[0];
+        var formData = new FormData(form);
+
+        // Gọi API bằng AJAX để gửi dữ liệu lên server
+        $.ajax({
+            type: "POST",
+            data: formData,
+            url: '@Url.Action("Insert", "QLSP")',
+            processData: false, // Bắt buộc khi dùng FormData
+            contentType: false, // Bắt buộc khi dùng FormData
+            cache: false,
+            success: function (response) {
+                alert(response); // Hiển thị thông báo từ server
+                if (response.toLowerCase().includes("thành công")) {
+                    // Nếu thành công, chuyển hướng về trang danh sách
+                    window.location.href = '@Url.Action("DSSP", "QLSP")';
+                }
+            },
+            error: function (data) {
+                alert("Đã xảy ra lỗi khi thêm sản phẩm.");
+                console.log(data);
+            }
+        });
+    });
+    </script>
+}
