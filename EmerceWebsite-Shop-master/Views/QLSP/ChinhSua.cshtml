@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "Thêm sản phẩm mới";
+    ViewBag.Title = "Chỉnh sửa Sản phẩm";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -10,7 +10,7 @@
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-end">
                     <li class="breadcrumb-item"><a href="@Url.Action("DSSP", "QLSP")">Quản lý Sản phẩm</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Thêm mới</li>
+                    <li class="breadcrumb-item active" aria-current="page">Chỉnh sửa</li>
                 </ol>
             </div>
         </div>
@@ -23,36 +23,34 @@
                 <div class="card card-primary card-outline mb-4">
                     <div class="card-header"><div class="card-title">Thông tin sản phẩm</div></div>
                     <form id="form-product">
+                        <input type="hidden" id="txt_ProductID_hide" name="txt_ProductID_hide" />
+
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-lg-12 mb-3">
                                     <label for="txt_ProductName" class="form-label">Tên sản phẩm</label>
-                                    <input type="text" class="form-control" name="ProductName" id="txt_ProductName" placeholder="Ví dụ: Nồi cơm điện Sunhouse" required />
+                                    <input type="text" class="form-control" name="ProductName" id="txt_ProductName" required />
                                 </div>
-
                                 <div class="col-lg-12 mb-3">
                                     <label for="txt_Description" class="form-label">Mô tả sản phẩm</label>
                                     <textarea id="txt_Description" name="ProductDescription" class="form-control" rows="3"></textarea>
                                 </div>
-
                                 <div class="col-lg-4 mb-3">
                                     <label for="txt_Price" class="form-label">Giá bán</label>
-                                    <input type="number" class="form-control" name="Price" id="txt_Price" placeholder="Ví dụ: 199000" required min="1000" />
+                                    <input type="number" class="form-control" name="Price" id="txt_Price" required min="0" />
                                 </div>
-
                                 <div class="col-lg-4 mb-3">
                                     <label for="txt_Stock" class="form-label">Số lượng tồn kho</label>
-                                    <input type="number" class="form-control" name="Stock" id="txt_Stock" placeholder="Ví dụ: 50" required min="0" />
+                                    <input type="number" class="form-control" name="Stock" id="txt_Stock" required min="0" />
                                 </div>
-
                                 <div class="col-lg-4 mb-3">
                                     <label for="txt_Brand" class="form-label">Thương hiệu</label>
-                                    <input type="text" class="form-control" name="Brand" id="txt_Brand" placeholder="Ví dụ: Sunhouse" />
+                                    <input type="text" class="form-control" name="Brand" id="txt_Brand" />
                                 </div>
                             </div>
                         </div>
                         <div class="card-footer">
-                            <button type="button" id="btn_submit_create" class="btn btn-primary">Thêm mới</button>
+                            <button type="button" id="btn_submit_update" class="btn btn-primary">Cập nhật</button>
                             <a href="@Url.Action("DSSP", "QLSP")" class="btn btn-secondary">Quay lại danh sách</a>
                         </div>
                     </form>
@@ -63,29 +61,61 @@
 </div>
 @section scripts {
     <script>
-    $("#btn_submit_create").click(function () {
-        // Lấy dữ liệu từ form
+    $(document).ready(function () {
+        // Lấy ID từ ViewBag đã được Controller gửi sang
+        var productId = '@ViewBag.ProductID';
+
+        // Đoạn code JavaScript này chỉ chạy khi Controller đã đảm bảo có ID hợp lệ
+        loadProductDetails(productId);
+    });
+
+    function loadProductDetails(id) {
+        $.ajax({
+            type: "POST",
+            // Gọi Action GetProductDetails trong QLSPController
+            url: '@Url.Action("GetProductDetails", "QLSP")',
+            data: { id: id },
+            dataType: "json",
+            success: function (product) {
+                if (product) {
+                    // Điền dữ liệu vào form
+                    $("#txt_ProductID_hide").val(product.ProductID);
+                    $("#txt_ProductName").val(product.ProductName);
+                    $("#txt_Description").val(product.ProductDescription);
+                    $("#txt_Price").val(product.Price);
+                    $("#txt_Stock").val(product.Stock);
+                    $("#txt_Brand").val(product.Brand);
+                } else {
+                    alert("Không tìm thấy thông tin cho sản phẩm có ID = " + id);
+                }
+            },
+            error: function (data) {
+                alert("Đã xảy ra lỗi khi tải thông tin sản phẩm.");
+                console.log(data);
+            }
+        });
+    }
+
+    $("#btn_submit_update").click(function () {
         var form = $('#form-product')[0];
         var formData = new FormData(form);
 
-        // Gọi API bằng AJAX để gửi dữ liệu lên server
         $.ajax({
             type: "POST",
             data: formData,
-            // Gọi Action Insert trong QLSPController
-            url: '@Url.Action("Insert", "QLSP")',
+            // Gọi Action Update trong QLSPController
+            url: '@Url.Action("Update", "QLSP")',
             processData: false,
             contentType: false,
             cache: false,
             success: function (response) {
-                alert(response); // Hiển thị thông báo từ server
+                alert(response);
                 if (response.toLowerCase().includes("thành công")) {
-                    // Nếu thành công, chuyển hướng về trang danh sách
                     window.location.href = '@Url.Action("DSSP", "QLSP")';
                 }
             },
             error: function (data) {
-                alert("Đã xảy ra lỗi khi thêm sản phẩm.");
+                alert("Đã xảy ra lỗi khi cập nhật sản phẩm.");
                 console.log(data);
             }
         });

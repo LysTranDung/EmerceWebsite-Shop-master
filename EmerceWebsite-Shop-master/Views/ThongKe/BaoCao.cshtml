@@ -1,0 +1,210 @@
+﻿@{
+    ViewBag.Title = "Báo cáo Tổng quan";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Content Header -->
+<div class="app-content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6"><h3 class="mb-0">@ViewBag.Title</h3></div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-end">
+                    <li class="breadcrumb-item"><a href="#">Báo cáo & Thống kê</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Báo cáo</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main content -->
+<div class="app-content">
+    <div class="container-fluid">
+        <!-- BỘ LỌC -->
+        <div class="card card-outline card-primary">
+            <div class="card-header"><h3 class="card-title">Bộ lọc</h3></div>
+            <div class="card-body">
+                <div class="row align-items-end">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Lọc theo</label>
+                            <select id="filterType" class="form-control">
+                                <option value="today">Hôm nay</option>
+                                <option value="this_month" selected>Tháng này</option>
+                                <option value="this_quarter">Quý này</option>
+                                <option value="all">Tất cả hóa đơn</option>
+                                <option value="custom">Tùy chọn ngày</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3" id="customDateRange" style="display: none;">
+                        <div class="form-group">
+                            <label>Từ ngày</label>
+                            <input type="date" id="startDate" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-md-3" id="customDateRange2" style="display: none;">
+                        <div class="form-group">
+                            <label>Đến ngày</label>
+                            <input type="date" id="endDate" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <button id="btnFilter" class="btn btn-primary w-100">Xem báo cáo</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BÁO CÁO TỔNG QUAN -->
+        <div class="row">
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-info">
+                    <div class="inner">
+                        <h3 id="totalRevenue">0 đ</h3>
+                        <p>Tổng doanh thu</p>
+                    </div>
+                    <div class="icon"><i class="bi bi-cash-stack"></i></div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-success">
+                    <div class="inner">
+                        <h3 id="totalOrders">0</h3>
+                        <p>Tổng số đơn hàng</p>
+                    </div>
+                    <div class="icon"><i class="bi bi-bag-check-fill"></i></div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-warning">
+                    <div class="inner">
+                        <h3 id="totalProductsSold">0</h3>
+                        <p>Sản phẩm đã bán</p>
+                    </div>
+                    <div class="icon"><i class="bi bi-cart-plus-fill"></i></div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-danger">
+                    <div class="inner">
+                        <h3 id="bestSellingProduct" title="N/A" style="font-size: 1.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">N/A</h3>
+                        <p>Sản phẩm bán chạy nhất</p>
+                    </div>
+                    <div class="icon"><i class="bi bi-star-fill"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biểu đồ -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Biểu đồ doanh thu theo ngày</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="revenueChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let myChart; // Biến toàn cục để lưu trữ đối tượng biểu đồ
+
+        $(document).ready(function () {
+            $('#filterType').on('change', function () {
+                if (this.value === 'custom') {
+                    $('#customDateRange, #customDateRange2').show();
+                } else {
+                    $('#customDateRange, #customDateRange2').hide();
+                }
+            });
+
+            $('#btnFilter').on('click', fetchData);
+            fetchData();
+        });
+
+        function fetchData() {
+            const filterType = $('#filterType').val();
+            const startDate = $('#startDate').val();
+            const endDate = $('#endDate').val();
+
+            // Có thể thêm hiệu ứng loading cho các small box
+            $('.small-box .inner h3').text('...');
+
+            $.ajax({
+                url: '@Url.Action("GetData", "ThongKe")',
+                type: 'POST',
+                data: { filterType: filterType, startDate: startDate, endDate: endDate },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.error) {
+                        alert(data.error);
+                        return;
+                    }
+                    updateOverview(data);
+                    updateRevenueChart(data.RevenueByDate);
+                },
+                error: function () {
+                    alert('Đã có lỗi xảy ra khi tải dữ liệu báo cáo.');
+                }
+            });
+        }
+
+        function updateOverview(data) {
+            $('#totalRevenue').text(new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(data.TotalRevenue));
+            $('#totalOrders').text(data.TotalOrders);
+            $('#totalProductsSold').text(data.TotalProductsSold);
+            $('#bestSellingProduct').text(data.BestSellingProduct || 'N/A');
+            $('#bestSellingProduct').attr('title', data.BestSellingProduct || 'N/A'); // Thêm tooltip để xem tên đầy đủ
+        }
+
+        function updateRevenueChart(data) {
+            const labels = data.map(item => {
+                const date = new Date(parseInt(item.Date.substr(6)));
+                return `${date.getDate()}/${date.getMonth() + 1}`;
+            });
+            const revenueValues = data.map(item => item.TotalRevenue);
+
+            const chartData = {
+                labels: labels,
+                datasets: [{
+                    label: 'Doanh thu',
+                    data: revenueValues,
+                    backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                    borderColor: 'rgba(0, 123, 255, 1)',
+                    borderWidth: 1,
+                    tension: 0.1
+                }]
+            };
+
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            myChart = new Chart(ctx, {
+                type: 'line', // Biểu đồ đường
+                data: chartData,
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return new Intl.NumberFormat('vi-VN').format(value) + ' đ';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+}

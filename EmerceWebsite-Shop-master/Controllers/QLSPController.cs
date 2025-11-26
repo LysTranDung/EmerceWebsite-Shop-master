@@ -1,224 +1,139 @@
-﻿using EmerceWebsite_Shop_master.Models; // << Đảm bảo tên namespace này đúng
-using Newtonsoft.Json;
+﻿using EmerceWebsite_Shop_master.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 
-namespace EmerceWebsite_Shop_master.Controllers // << Đảm bảo tên namespace này đúng
+namespace EmerceWebsite_Shop_master.Controllers
 {
     public class QLSPController : Controller
     {
-        //================================================================
-        // CÁC ACTION TRẢ VỀ VIEW (CÁC TRANG HTML)
-        //================================================================
+        DatabaseDataContext db = new DatabaseDataContext();
+        int currentShopId = 1;
 
-        // GET: /QLSP/DSSP
-        // Hiển thị trang danh sách sản phẩm
+        // 1. TRANG DANH SÁCH (Chỉ trả về khung HTML, không truyền Model)
         public ActionResult DSSP()
         {
             return View();
         }
 
-        // GET: /QLSP/ThemSP
-        // Hiển thị form để thêm sản phẩm mới
-        public ActionResult ThemSP()
+        public ActionResult ThemSP() { return View(); }
+
+        public ActionResult ChinhSua(int? id)
         {
+            ViewBag.ProductID = id; // Truyền ID để lát JS gọi API lấy chi tiết
             return View();
         }
 
-        // GET: /QLSP/ChinhSua/5
-        // Hiển thị form để sửa sản phẩm với id tương ứng
-        public ActionResult ChinhSua(int id)
-        {
-            // Truyền ProductID sang View để JavaScript có thể dùng ID này gọi API lấy chi tiết sản phẩm
-            ViewBag.ProductID = id;
-            return View();
-        }
+        // ================= API DATA ================= //
 
-
-        //================================================================
-        // CÁC ACTION API (XỬ LÝ LOGIC, TRẢ VỀ DỮ LIỆU JSON/STRING)
-        //================================================================
-
-        /// <summary>
-        /// API để lấy danh sách sản phẩm của một cửa hàng.
-        /// Được gọi bằng AJAX từ trang DSSP.
-        /// </summary>
-        [HttpPost] // Hoặc có thể dùng HttpGet nếu muốn
+        // API 1: LẤY DANH SÁCH SẢN PHẨM
+        [HttpPost]
         public JsonResult GetProducts()
         {
             try
             {
-                int currentShopId = 1; // Giả định: chủ shop đang đăng nhập quản lý ShopID = 1
-
-                DatabaseDataContext db = new DatabaseDataContext();
-
-                var products_qr = from p in db.Products
-                                  join ps in db.ProductShops on p.ProductID equals ps.ProductID
-                                  where ps.ShopID == currentShopId && (p.IsDelete == null || p.IsDelete == false)
-                                  select new
-                                  {
-                                      p.ProductID,
-                                      p.ProductName,
-                                      p.Price,
-                                      p.Stock,
-                                      p.Brand
-                                  };
-
-                return Json(products_qr.ToList(), JsonRequestBehavior.AllowGet);
+                var list = (from p in db.Products
+                            join ps in db.ProductShops on p.ProductID equals ps.ProductID
+                            where ps.ShopID == currentShopId && (p.IsDelete == false || p.IsDelete == null)
+                            orderby p.ProductID descending
+                            select new
+                            {
+                                p.ProductID,
+                                p.ProductName,
+                                p.Price,
+                                p.Stock,
+                                p.Brand
+                            }).ToList();
+                return Json(list);
             }
-            catch (Exception)
-            {
-                // Trả về một mảng rỗng nếu có lỗi để tránh làm sập JavaScript ở client
-                return Json(new List<object>(), JsonRequestBehavior.AllowGet);
-            }
+            catch { return Json(new List<object>()); }
         }
 
-        /// <summary>
-        /// API để lấy thông tin chi tiết của một sản phẩm.
-        /// Được gọi bằng AJAX từ trang ChinhSua.
-        /// </summary>
+        // API 2: LẤY CHI TIẾT 1 SẢN PHẨM
         [HttpPost]
         public JsonResult GetProductDetails(int id)
         {
-            try
-            {
-                DatabaseDataContext db = new DatabaseDataContext();
-                var product = db.Products.FirstOrDefault(p => p.ProductID == id);
-                return Json(product, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception)
-            {
-                return Json(null, JsonRequestBehavior.AllowGet);
-            }
+            var p = db.Products.Select(x => new {
+                x.ProductID,
+                x.ProductName,
+                x.Price,
+                x.Stock,
+                x.Brand,
+                x.ProductDescription
+            }).FirstOrDefault(x => x.ProductID == id);
+            return Json(p);
         }
 
-        /// <summary>
-        /// API để thêm một sản phẩm mới.
-        /// Được gọi bằng AJAX từ trang ThemSP.
-        /// </summary>
+        // API 3: THÊM SẢN PHẨM
         [HttpPost]
-        public string Insert()
+        public JsonResult Insert(Product product)
         {
             try
             {
-                string productName = Request.Form["txt_ProductName"];
-                string description = Request.Form["txt_Description"];
-                decimal price = decimal.Parse(Request.Form["txt_Price"]);
-                int stock = int.Parse(Request.Form["txt_Stock"]);
-                string brand = Request.Form["txt_Brand"];
-
-                if (string.IsNullOrWhiteSpace(productName))
-                {
-                    return "Tên sản phẩm không được để trống.";
-                }
-
-                DatabaseDataContext db = new DatabaseDataContext();
-
-                Product new_product = new Product
-                {
-                    ProductName = productName,
-                    ProductDescription = description,
-                    Price = price,
-                    Stock = stock,
-                    Brand = brand,
-                    IsDelete = false
-                };
-
-                db.Products.InsertOnSubmit(new_product);
+                product.IsDelete = false;
+                db.Products.InsertOnSubmit(product);
                 db.SubmitChanges();
 
-                int currentShopId = 1; // Giả định ShopID = 1
-                ProductShop productShopLink = new ProductShop
-                {
-                    ProductID = new_product.ProductID,
-                    ShopID = currentShopId,
-                    IsDelete = false
-                };
-
-                db.ProductShops.InsertOnSubmit(productShopLink);
+                ProductShop ps = new ProductShop { ProductID = product.ProductID, ShopID = currentShopId };
+                db.ProductShops.InsertOnSubmit(ps);
                 db.SubmitChanges();
 
-                return "Thêm mới sản phẩm thành công!";
+                return Json(new { success = true, message = "Thêm thành công!" });
             }
-            catch (Exception ex)
-            {
-                return "Thêm mới thất bại. Chi tiết lỗi: " + ex.Message;
-            }
+            catch (Exception ex) { return Json(new { success = false, message = ex.Message }); }
         }
 
-        /// <summary>
-        /// API để cập nhật thông tin một sản phẩm.
-        /// Được gọi bằng AJAX từ trang ChinhSua.
-        /// </summary>
+        // API 4: CẬP NHẬT (KÈM THÔNG BÁO TỰ ĐỘNG)
         [HttpPost]
-        public string Update()
+        public JsonResult Update(int txt_ProductID_hide, Product product)
         {
             try
             {
-                int productId = int.Parse(Request.Form["txt_ProductID_hide"]);
-                string productName = Request.Form["txt_ProductName"];
-                string description = Request.Form["txt_Description"];
-                decimal price = decimal.Parse(Request.Form["txt_Price"]);
-                int stock = int.Parse(Request.Form["txt_Stock"]);
-                string brand = Request.Form["txt_Brand"];
-
-                DatabaseDataContext db = new DatabaseDataContext();
-
-                Product product_to_update = db.Products.FirstOrDefault(p => p.ProductID == productId);
-
-                if (product_to_update != null)
+                var existing = db.Products.FirstOrDefault(p => p.ProductID == txt_ProductID_hide);
+                if (existing != null)
                 {
-                    product_to_update.ProductName = productName;
-                    product_to_update.ProductDescription = description;
-                    product_to_update.Price = price;
-                    product_to_update.Stock = stock;
-                    product_to_update.Brand = brand;
+                    existing.ProductName = product.ProductName;
+                    existing.Price = product.Price;
+                    existing.Stock = product.Stock;
+                    existing.Brand = product.Brand;
+                    existing.ProductDescription = product.ProductDescription;
+
+                    // --- LOGIC THÔNG BÁO: CẢNH BÁO TỒN KHO ---
+                    if (existing.Stock <= 5)
+                    {
+                        ShopNotification noti = new ShopNotification();
+                        noti.ShopID = currentShopId;
+                        noti.Title = "⚠️ Cảnh báo tồn kho";
+                        noti.Message = "Sản phẩm '" + existing.ProductName + "' sắp hết hàng (" + existing.Stock + ").";
+                        noti.Type = "VIOLATION";
+                        noti.IsRead = false;
+                        noti.CreatedDate = DateTime.Now;
+                        noti.LinkUrl = "/QLSP/ChinhSua?id=" + existing.ProductID;
+                        db.ShopNotifications.InsertOnSubmit(noti);
+                    }
+                    // -----------------------------------------
 
                     db.SubmitChanges();
-                    return "Cập nhật thông tin sản phẩm thành công!";
+                    return Json(new { success = true, message = "Cập nhật thành công!" });
                 }
-                else
-                {
-                    return "Không tìm thấy sản phẩm để cập nhật.";
-                }
+                return Json(new { success = false, message = "Không tìm thấy SP" });
             }
-            catch (Exception ex)
-            {
-                return "Cập nhật thất bại. Chi tiết lỗi: " + ex.Message;
-            }
+            catch (Exception ex) { return Json(new { success = false, message = ex.Message }); }
         }
 
-
-        /// <summary>
-        /// API để xóa (xóa mềm) một sản phẩm.
-        /// Được gọi bằng AJAX từ trang DSSP.
-        /// </summary>
+        // API 5: XÓA
         [HttpPost]
-        public string Delete(int id)
+        public JsonResult Delete(int id)
         {
-            try
+            var p = db.Products.FirstOrDefault(x => x.ProductID == id);
+            if (p != null)
             {
-                DatabaseDataContext db = new DatabaseDataContext();
-
-                Product product_to_delete = db.Products.FirstOrDefault(p => p.ProductID == id);
-
-                if (product_to_delete != null)
-                {
-                    product_to_delete.IsDelete = true;
-                    db.SubmitChanges();
-                    return "Xóa sản phẩm thành công!";
-                }
-                else
-                {
-                    return "Không tìm thấy sản phẩm để xóa.";
-                }
+                p.IsDelete = true;
+                db.SubmitChanges();
+                return Json(new { success = true });
             }
-            catch (Exception ex)
-            {
-                return "Xóa thất bại. Chi tiết lỗi: " + ex.Message;
-            }
+            return Json(new { success = false });
         }
     }
 }

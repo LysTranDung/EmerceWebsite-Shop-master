@@ -1,0 +1,155 @@
+﻿@* KHAI BÁO MODEL RÕ RÀNG *@
+@model IEnumerable<EmerceWebsite_Shop_master.Models.ReviewViewModel>
+
+@{
+    ViewBag.Title = "Quản lý Đánh giá & Phản hồi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="app-content-header">
+    <div class="container-fluid">
+        <h3 class="mb-0">@ViewBag.Title</h3>
+    </div>
+</div>
+
+<div class="app-content">
+    <div class="container-fluid">
+        <div class="card card-primary card-outline">
+            <div class="card-header"><h3 class="card-title">Danh sách Đánh giá Sản phẩm</h3></div>
+            <div class="card-body">
+
+                @* Model bây giờ là một List<ReviewViewModel>, có thể dùng .Any() thoải mái *@
+                @if (Model != null && Model.Any())
+                {
+                    <table id="reviewTable" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Sản phẩm</th>
+                                <th>Khách hàng</th>
+                                <th>Sao</th>
+                                <th>Nội dung Đánh giá</th>
+                                <th>Ngày Đánh giá</th>
+                                <th>Phản hồi của Shop</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.Review.ReviewID</td>
+                                    <td>@item.ProductName</td>
+                                    <td>@item.CustomerName</td>
+                                    <td>
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <i class="bi bi-star-fill @(i <= item.Review.Rating ? "text-warning" : "text-secondary")"></i>
+                                        }
+                                    </td>
+                                    <td style="max-width: 300px;">@item.Review.Comment</td>
+                                    <td>@(item.Review.ReviewDate.HasValue ? item.Review.ReviewDate.Value.ToString("dd/MM/yyyy HH:mm") : "")</td>
+                                    <td>
+                                        @if (item.Response != null)
+                                        {
+                                            <p class="text-success fw-bold">Đã phản hồi:</p>
+                                            <p style="white-space: pre-wrap;">@item.Response.ResponseText</p>
+                                            <small class="text-muted">@(item.Response.ResponseDate.HasValue ? item.Response.ResponseDate.Value.ToString("dd/MM/yyyy HH:mm") : "")</small>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-danger">Chưa phản hồi</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info btn-response"
+                                                data-id="@item.Review.ReviewID"
+                                                data-response="@(item.Response != null ? item.Response.ResponseText : "")">
+                                            Phản hồi / Chỉnh sửa
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p class="text-center text-muted">Không tìm thấy đánh giá nào.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Modal giữ nguyên *@
+<div class="modal fade" id="responseModal" tabindex="-1" aria-labelledby="responseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="responseModalLabel">Phản hồi Đánh giá</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="responseForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="reviewIdInput" name="reviewId" />
+                    <div class="mb-3">
+                        <label for="responseText" class="col-form-label">Nội dung Phản hồi của Shop:</label>
+                        <textarea class="form-control" id="responseText" name="responseText" rows="4" required placeholder="Nhập phản hồi của bạn..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="submit" class="btn btn-primary" id="submitResponseBtn"><i class="bi bi-send-fill"></i> Gửi Phản hồi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $(".btn-response").click(function () {
+                var reviewId = $(this).data("id");
+                var currentResponse = $(this).data("response");
+
+                $("#reviewIdInput").val(reviewId);
+                $("#responseText").val(currentResponse);
+                var modal = new bootstrap.Modal(document.getElementById('responseModal'));
+                modal.show();
+            });
+
+            $("#submitResponseBtn").click(function () {
+                var reviewId = $("#reviewIdInput").val();
+                var responseText = $("#responseText").val();
+                var token = $('input[name="__RequestVerificationToken"]').val();
+
+                if (!responseText.trim()) {
+                    alert("Vui lòng nhập nội dung phản hồi.");
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("RespondToReview", "QLReview")',
+                    data: {
+                        __RequestVerificationToken: token,
+                        reviewId: reviewId,
+                        responseText: responseText
+                    },
+                    success: function (response) {
+                        alert(response.message);
+                        if (response.success) {
+                            window.location.reload();
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        alert("Lỗi: " + error);
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -13,14 +13,6 @@
       <Association Name="Account_ShopMaster" Member="ShopMaster" ThisKey="AccountID" OtherKey="ShopMasterID" Type="ShopMaster" Cardinality="One" />
     </Type>
   </Table>
-  <Table Name="dbo.Categories" Member="Categories">
-    <Type Name="Category">
-      <Column Name="CategoryID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
-      <Column Name="CategoryName" Type="System.String" DbType="NVarChar(100) NOT NULL" CanBeNull="false" />
-      <Column Name="IsDelete" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
-      <Association Name="Category_ProductCategory" Member="ProductCategories" ThisKey="CategoryID" OtherKey="CategoryID" Type="ProductCategory" />
-    </Type>
-  </Table>
   <Table Name="dbo.Customers" Member="Customers">
     <Type Name="Customer">
       <Column Name="CustomerID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
@@ -35,13 +27,12 @@
       <Association Name="Account_Customer" Member="Account" ThisKey="AccountID" OtherKey="AccountID" Type="Account" IsForeignKey="true" />
     </Type>
   </Table>
-  <Table Name="dbo.DiscountShop" Member="DiscountShops">
-    <Type Name="DiscountShop">
-      <Column Name="DiscountID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
-      <Column Name="ShopID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+  <Table Name="dbo.Categories" Member="Categories">
+    <Type Name="Category">
+      <Column Name="CategoryID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="CategoryName" Type="System.String" DbType="NVarChar(100) NOT NULL" CanBeNull="false" />
       <Column Name="IsDelete" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
-      <Association Name="Discount_DiscountShop" Member="Discount" ThisKey="DiscountID" OtherKey="DiscountID" Type="Discount" IsForeignKey="true" />
-      <Association Name="Shop_DiscountShop" Member="Shop" ThisKey="ShopID" OtherKey="ShopID" Type="Shop" IsForeignKey="true" />
+      <Association Name="Category_ProductCategory" Member="ProductCategories" ThisKey="CategoryID" OtherKey="CategoryID" Type="ProductCategory" />
     </Type>
   </Table>
   <Table Name="dbo.Discounts" Member="Discounts">
@@ -58,6 +49,15 @@
       <Association Name="Discount_DiscountShop" Member="DiscountShops" ThisKey="DiscountID" OtherKey="DiscountID" Type="DiscountShop" />
     </Type>
   </Table>
+  <Table Name="dbo.DiscountShop" Member="DiscountShops">
+    <Type Name="DiscountShop">
+      <Column Name="DiscountID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="ShopID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="IsDelete" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Association Name="Discount_DiscountShop" Member="Discount" ThisKey="DiscountID" OtherKey="DiscountID" Type="Discount" IsForeignKey="true" />
+      <Association Name="Shop_DiscountShop" Member="Shop" ThisKey="ShopID" OtherKey="ShopID" Type="Shop" IsForeignKey="true" />
+    </Type>
+  </Table>
   <Table Name="dbo.OrderItems" Member="OrderItems">
     <Type Name="OrderItem">
       <Column Name="OrderItemID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
@@ -68,17 +68,6 @@
       <Column Name="IsDelete" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
       <Association Name="Order_OrderItem" Member="Order" ThisKey="OrderID" OtherKey="OrderID" Type="Order" IsForeignKey="true" />
       <Association Name="Product_OrderItem" Member="Product" ThisKey="ProductID" OtherKey="ProductID" Type="Product" IsForeignKey="true" />
-    </Type>
-  </Table>
-  <Table Name="dbo.Payments" Member="Payments">
-    <Type Name="Payment">
-      <Column Name="PaymentID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
-      <Column Name="OrderID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Column Name="PaymentDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
-      <Column Name="Amount" Type="System.Decimal" DbType="Decimal(10,2) NOT NULL" CanBeNull="false" />
-      <Column Name="PaymentMethod" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
-      <Column Name="IsDelete" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
-      <Association Name="Order_Payment" Member="Order" ThisKey="OrderID" OtherKey="OrderID" Type="Order" IsForeignKey="true" />
     </Type>
   </Table>
   <Table Name="dbo.Orders" Member="Orders">
@@ -95,13 +84,15 @@
       <Association Name="Customer_Order" Member="Customer" ThisKey="CustomerID" OtherKey="CustomerID" Type="Customer" IsForeignKey="true" />
     </Type>
   </Table>
-  <Table Name="dbo.ProductShop" Member="ProductShops">
-    <Type Name="ProductShop">
-      <Column Name="ProductID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
-      <Column Name="ShopID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+  <Table Name="dbo.Payments" Member="Payments">
+    <Type Name="Payment">
+      <Column Name="PaymentID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="OrderID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="PaymentDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="Amount" Type="System.Decimal" DbType="Decimal(10,2) NOT NULL" CanBeNull="false" />
+      <Column Name="PaymentMethod" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
       <Column Name="IsDelete" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
-      <Association Name="Product_ProductShop" Member="Product" ThisKey="ProductID" OtherKey="ProductID" Type="Product" IsForeignKey="true" />
-      <Association Name="Shop_ProductShop" Member="Shop" ThisKey="ShopID" OtherKey="ShopID" Type="Shop" IsForeignKey="true" />
+      <Association Name="Order_Payment" Member="Order" ThisKey="OrderID" OtherKey="OrderID" Type="Order" IsForeignKey="true" />
     </Type>
   </Table>
   <Table Name="dbo.ProductCategories" Member="ProductCategories">
@@ -123,9 +114,42 @@
       <Column Name="Brand" Type="System.String" DbType="NVarChar(100)" CanBeNull="true" />
       <Column Name="IsDelete" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
       <Association Name="Product_OrderItem" Member="OrderItems" ThisKey="ProductID" OtherKey="ProductID" Type="OrderItem" />
-      <Association Name="Product_ProductShop" Member="ProductShops" ThisKey="ProductID" OtherKey="ProductID" Type="ProductShop" />
       <Association Name="Product_ProductCategory" Member="ProductCategories" ThisKey="ProductID" OtherKey="ProductID" Type="ProductCategory" />
+      <Association Name="Product_ProductShop" Member="ProductShops" ThisKey="ProductID" OtherKey="ProductID" Type="ProductShop" />
       <Association Name="Product_Review" Member="Reviews" ThisKey="ProductID" OtherKey="ProductID" Type="Review" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ProductShop" Member="ProductShops">
+    <Type Name="ProductShop">
+      <Column Name="ProductID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="ShopID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="IsDelete" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Association Name="Product_ProductShop" Member="Product" ThisKey="ProductID" OtherKey="ProductID" Type="Product" IsForeignKey="true" />
+      <Association Name="Shop_ProductShop" Member="Shop" ThisKey="ShopID" OtherKey="ShopID" Type="Shop" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ReviewResponse" Member="ReviewResponses">
+    <Type Name="ReviewResponse">
+      <Column Name="ResponseID" Type="System.Int32" DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="ReviewID" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="ShopUserID" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="ResponseText" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="ResponseDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="Review_ReviewResponse" Member="Review" ThisKey="ReviewID" OtherKey="ReviewID" Type="Review" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Reviews" Member="Reviews">
+    <Type Name="Review">
+      <Column Name="ReviewID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="ProductID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="CustomerID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Rating" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="Comment" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+      <Column Name="ReviewDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="IsDelete" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Association Name="Review_ReviewResponse" Member="ReviewResponses" ThisKey="ReviewID" OtherKey="ReviewID" Type="ReviewResponse" />
+      <Association Name="Customer_Review" Member="Customer" ThisKey="CustomerID" OtherKey="CustomerID" Type="Customer" IsForeignKey="true" />
+      <Association Name="Product_Review" Member="Product" ThisKey="ProductID" OtherKey="ProductID" Type="Product" IsForeignKey="true" />
     </Type>
   </Table>
   <Table Name="dbo.Shipments" Member="Shipments">
@@ -139,19 +163,6 @@
       <Column Name="IsDelete" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
       <Association Name="Order_Shipment" Member="Order" ThisKey="OrderID" OtherKey="OrderID" Type="Order" IsForeignKey="true" />
       <Association Name="Shipper_Shipment" Member="Shipper" ThisKey="ShipperID" OtherKey="ShipperID" Type="Shipper" IsForeignKey="true" />
-    </Type>
-  </Table>
-  <Table Name="dbo.Reviews" Member="Reviews">
-    <Type Name="Review">
-      <Column Name="ReviewID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
-      <Column Name="ProductID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Column Name="CustomerID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Column Name="Rating" Type="System.Int32" DbType="Int" CanBeNull="true" />
-      <Column Name="Comment" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
-      <Column Name="ReviewDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
-      <Column Name="IsDelete" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
-      <Association Name="Customer_Review" Member="Customer" ThisKey="CustomerID" OtherKey="CustomerID" Type="Customer" IsForeignKey="true" />
-      <Association Name="Product_Review" Member="Product" ThisKey="ProductID" OtherKey="ProductID" Type="Product" IsForeignKey="true" />
     </Type>
   </Table>
   <Table Name="dbo.Shippers" Member="Shippers">
@@ -169,6 +180,9 @@
       <Column Name="ShopName" Type="System.String" DbType="NVarChar(100) NOT NULL" CanBeNull="false" />
       <Column Name="ShopLocation" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
       <Column Name="IsDelete" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="LogoUrl" Type="System.String" DbType="VarChar(MAX)" CanBeNull="true" />
+      <Column Name="ShopPolicy" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="IsActive" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
       <Association Name="Shop_DiscountShop" Member="DiscountShops" ThisKey="ShopID" OtherKey="ShopID" Type="DiscountShop" />
       <Association Name="Shop_ProductShop" Member="ProductShops" ThisKey="ShopID" OtherKey="ShopID" Type="ProductShop" />
       <Association Name="Shop_ShopAssignment" Member="ShopAssignments" ThisKey="ShopID" OtherKey="ShopID" Type="ShopAssignment" />
@@ -191,6 +205,28 @@
       <Column Name="IsDelete" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
       <Association Name="ShopMaster_ShopAssignment" Member="ShopAssignments" ThisKey="ShopMasterID" OtherKey="ShopMasterID" Type="ShopAssignment" />
       <Association Name="Account_ShopMaster" Member="Account" ThisKey="ShopMasterID" OtherKey="AccountID" Type="Account" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ShopNotifications" Member="ShopNotifications">
+    <Type Name="ShopNotification">
+      <Column Name="NotificationID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="ShopID" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="Title" Type="System.String" DbType="NVarChar(100)" CanBeNull="true" />
+      <Column Name="Message" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="Type" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="CreatedDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="IsRead" Type="System.Boolean" DbType="Bit" CanBeNull="true" />
+      <Column Name="LinkUrl" Type="System.String" DbType="NVarChar(255)" CanBeNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.SupportRequests" Member="SupportRequests">
+    <Type Name="SupportRequest">
+      <Column Name="RequestID" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="ShopID" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="OrderID" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="Content" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="CreatedDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="Status" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
     </Type>
   </Table>
 </Database>

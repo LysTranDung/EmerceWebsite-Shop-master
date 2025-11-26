@@ -3,9 +3,6 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<!-- ============================================== -->
-<!--    KHỐI HTML ĐỂ HIỂN THỊ GIAO DIỆN             -->
-<!-- ============================================== -->
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">@ViewBag.Title</h3>
@@ -15,14 +12,9 @@
     </div>
     <div class="card-body">
         <table id="tbl_products" class="table table-bordered table-hover">
-            <!-- Dữ liệu sẽ được chèn vào đây bằng JavaScript -->
         </table>
     </div>
 </div>
-
-<!-- ============================================== -->
-<!--    KHỐI JAVASCRIPT ĐỂ XỬ LÝ DỮ LIỆU ĐỘNG      -->
-<!-- ============================================== -->
 
 @section scripts {
     <script>
@@ -35,7 +27,6 @@
     function loadProducts() {
         $.ajax({
             type: "POST",
-            // SỬA LẠI URL ĐỂ TRỎ ĐẾN ĐÚNG ACTION TRONG QLSPController
             url: '@Url.Action("GetProducts", "QLSP")',
             contentType: "application/json; charset=utf-8",
             dataType: "json",
@@ -56,8 +47,9 @@
                             + "<td>" + product.Stock + "</td>"
                             + "<td>" + product.Brand + "</td>"
                             + "<td>"
-                            // SỬA LẠI URL CHO NÚT SỬA
+                            // URL Sửa
                             + "<a href='@Url.Action("ChinhSua", "QLSP")/" + product.ProductID + "' class='btn btn-warning btn-sm'>Sửa</a> "
+                            // Nút Xóa
                             + "<button type='button' class='btn btn-danger btn-sm' onclick='confirmDelete(" + product.ProductID + ")'>Xóa</button>"
                             + "</td>"
                             + "</tr>";
@@ -82,11 +74,11 @@
         if (confirm("Bạn có chắc chắn muốn xóa sản phẩm có ID = " + productId + " không?")) {
             $.ajax({
                 type: "POST",
-                // SỬA LẠI URL ĐỂ TRỎ ĐẾN ĐÚNG ACTION TRONG QLSPController
                 url: '@Url.Action("Delete", "QLSP")',
                 data: { id: productId },
                 success: function (response) {
                     alert(response);
+                    // Tải lại danh sách sau khi xóa thành công
                     loadProducts();
                 },
                 error: function (xhr, status, error) {

@@ -1,0 +1,98 @@
+﻿@{
+    ViewBag.Title = "Danh sách Voucher & Khuyến mãi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">@ViewBag.Title</h3>
+        <div class="card-tools">
+            <a href="@Url.Action("TaoMoi", "QLVC")" class="btn btn-primary btn-sm">Tạo Voucher mới</a>
+        </div>
+    </div>
+    <div class="card-body">
+        <table id="tbl_discounts" class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>Mã Voucher</th>
+                    <th>Giảm (%)</th>
+                    <th>Mô tả</th>
+                    <th>Số lượng</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            loadDiscounts();
+        });
+
+        function loadDiscounts() {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetDiscounts", "QLVC")',
+                dataType: "json",
+                success: function (response) {
+                    var html_str = "";
+                    if (response && response.length > 0) {
+                        $.each(response, function (index, discount) {
+                            var statusColor = discount.DiscountStatus === 'Khả dụng' ? 'badge bg-success' : 'badge bg-danger';
+
+                            // --- SỬA Ở ĐÂY ---
+                            // Lấy trực tiếp chuỗi đã format từ Controller
+                            var startDate = discount.StartDateStr;
+                            var endDate = discount.EndDateStr;
+                            // -----------------
+
+                            html_str += "<tr>"
+                                + "<td class='fw-bold text-primary'>" + discount.DiscountCode + "</td>"
+                                + "<td>" + discount.DiscountPercentage + "%</td>"
+                                + "<td>" + (discount.DiscountDescription || '') + "<br><small class='text-muted'>Từ: " + startDate + " đến: " + endDate + "</small></td>"
+                                + "<td>" + discount.Quantity + "</td>"
+                                + "<td><span class='" + statusColor + "'>" + discount.DiscountStatus + "</span></td>"
+                                + "<td>"
+                                + "<button type='button' class='btn btn-danger btn-sm' onclick='confirmDelete(" + discount.DiscountID + ")'><i class='bi bi-trash'></i> Xóa</button>"
+                                + "</td>"
+                                + "</tr>";
+                        });
+                    } else {
+                        html_str += "<tr><td colspan='6' class='text-center'>Chưa có Voucher nào.</td></tr>";
+                    }
+
+                    $("#tbl_discounts tbody").html(html_str);
+                },
+                error: function(err) {
+                    console.log("Lỗi tải dữ liệu:", err);
+                }
+            });
+        }
+
+        function confirmDelete(id) {
+            if (confirm("Bạn có chắc chắn muốn xóa Voucher này không?")) {
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("Delete", "QLVC")',
+                    data: { id: id },
+                    success: function (response) {
+                        if(response.success) {
+                            alert(response.message || "Xóa thành công");
+                            loadDiscounts();
+                        } else {
+                            alert("Lỗi: " + (response.message || "Không thể xóa"));
+                        }
+                    },
+                    error: function () {
+                        alert("Đã xảy ra lỗi kết nối khi xóa Voucher.");
+                    }
+                });
+            }
+        }
+    </script>
+}

@@ -1,0 +1,45 @@
+﻿
+@{
+    ViewBag.Title = "GuiYeuCau";
+}
+
+<h2>GuiYeuCau</h2>
+
+<div class="col-md-8 mx-auto" style="margin-top: 20px;">
+    <div class="card card-primary">
+        <div class="card-header">
+            <h3 class="card-title">Đơn hỗ trợ</h3>
+        </div>
+        <!-- Form gửi đến Action GuiYeuCau trong HoTroController -->
+        <form action="/HoTro/GuiYeuCau" method="post">
+            <div class="card-body">
+
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-danger">@ViewBag.Error</div>
+                }
+
+                <div class="form-group mb-3">
+                    <label>ID Shop (Cửa hàng):</label>
+                    <input type="number" class="form-control" name="shopId" placeholder="Nhập ID Shop..." required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label>ID Đơn hàng (Nếu có):</label>
+                    <input type="number" class="form-control" name="orderId" placeholder="Nhập mã đơn hàng...">
+                </div>
+
+                <div class="form-group mb-3">
+                    <label>Nội dung cần hỗ trợ:</label>
+                    <textarea class="form-control" name="noiDung" rows="5" placeholder="Mô tả chi tiết vấn đề..." required></textarea>
+                </div>
+
+                <p class="text-muted">Ngày gửi: @DateTime.Now.ToString("dd/MM/yyyy") (Tự động xác nhận)</p>
+            </div>
+
+            <div class="card-footer text-end">
+                <button type="submit" class="btn btn-primary px-4">Gửi Form</button>
+            </div>
+        </form>
+    </div>
+</div>

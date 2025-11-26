@@ -1,0 +1,67 @@
+﻿@model IEnumerable<EmerceWebsite_Shop_master.Models.ShopNotification>
+@{
+    ViewBag.Title = "Danh sách Thông báo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="app-content-header">
+    <div class="container-fluid">
+        <h3 class="mb-0">Thông báo hệ thống</h3>
+    </div>
+</div>
+
+<div class="app-content">
+    <div class="container-fluid">
+        <div class="card card-outline card-primary">
+            <div class="card-body p-0">
+                <table class="table table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px">#</th>
+                            <th style="width: 150px">Loại</th>
+                            <th>Tiêu đề & Nội dung</th>
+                            <th style="width: 150px">Thời gian</th>
+                            <th style="width: 100px">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.NotificationID</td>
+                                    <td>
+                                        @if (item.Type == "ORDER")
+                                        {<span class="badge bg-success">Đơn hàng</span> }
+                                        else if (item.Type == "VOUCHER")
+                                        { <span class="badge bg-warning text-dark">Voucher</span> }
+                                        else if (item.Type == "VIOLATION")
+                                        { <span class="badge bg-danger">Vi phạm</span> }
+                                        else
+                                        { <span class="badge bg-info">Hệ thống</span>}
+                                    </td>
+                                    <td>
+                                        <strong>@item.Title</strong><br />
+                                        <span class="text-muted">@item.Message</span>
+                                    </td>
+                                    <td>@string.Format("{0:dd/MM/yyyy HH:mm}", item.CreatedDate)</td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(item.LinkUrl))
+                                        {
+                                            <a href="@item.LinkUrl" class="btn btn-sm btn-outline-primary">Xem chi tiết</a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="5" class="text-center text-muted">Không có thông báo nào.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

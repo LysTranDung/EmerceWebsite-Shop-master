@@ -1,35 +1,36 @@
 ﻿<!DOCTYPE html>
 <html lang="vi">
- <!-- Thêm thuộc tính lang -->
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>@ViewBag.Title - Admin Dashboard</title>
 
-    <!-- Xóa 'user-scalable=yes' để cải thiện khả năng truy cập -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Các file CSS được bundle -->
     @Styles.Render("~/Content/css")
     <link rel="stylesheet" href="~/Content/adminlte.css" />
 
-    <!-- Các file CSS từ CDN -->
+    <!-- CDN cho Scrollbar và Icon -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/styles/overlayscrollbars.min.css" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" crossorigin="anonymous" />
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
 </head>
+
 <body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary">
     <div class="app-wrapper">
-        <!--begin::Header-->
+        <!-- HEADER / NAVBAR -->
         <nav class="app-header navbar navbar-expand bg-body">
             <div class="container-fluid">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <!-- Thêm aria-label để mô tả chức năng cho trình đọc màn hình -->
                         <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button" aria-label="Toggle navigation">
                             <i class="bi bi-list"></i>
                         </a>
                     </li>
                 </ul>
                 <ul class="navbar-nav ms-auto">
+                    <!-- User Profile -->
                     <li class="nav-item dropdown user-menu">
                         <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
                             <img src="~/img/user2-160x160.jpg" class="user-image rounded-circle shadow" alt="User Avatar" />
@@ -52,8 +53,8 @@
                 </ul>
             </div>
         </nav>
-        <!--end::Header-->
-        <!--begin::Sidebar-->
+
+        <!-- SIDEBAR -->
         <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
             <div class="sidebar-brand">
                 <a href="@Url.Action("Index", "Home")" class="brand-link">
@@ -64,8 +65,35 @@
             <div class="sidebar-wrapper">
                 <nav class="mt-2">
                     <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="navigation" data-accordion="false">
-                        <li class="nav-item menu-open">
-                            <a href="#" class="nav-link active">
+
+                        <!-- 1. BÁO CÁO & THỐNG KÊ -->
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon bi bi-bar-chart-line-fill"></i>
+                                <p>
+                                    Báo cáo & Thống kê
+                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="@Url.Action("BaoCao", "ThongKe")" class="nav-link">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Báo cáo Tổng quan</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="@Url.Action("ThongKe", "ThongKe")" class="nav-link">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Thống kê Doanh thu</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <!-- 2. QUẢN LÝ SẢN PHẨM -->
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
                                 <i class="nav-icon bi bi-box-seam-fill"></i>
                                 <p>
                                     Quản lý Sản phẩm
@@ -76,7 +104,7 @@
                                 <li class="nav-item">
                                     <a href="@Url.Action("DSSP", "QLSP")" class="nav-link">
                                         <i class="nav-icon bi bi-circle"></i>
-                                        <p>DS Sản phẩm</p>
+                                        <p>Danh sách Sản phẩm</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
@@ -85,19 +113,130 @@
                                         <p>Thêm mới</p>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="@Url.Action("ChinhSua", "QLSP")" class="nav-link">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Chỉnh sửa</p>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
+
+                        <!-- 3. QUẢN LÝ ĐƠN HÀNG -->
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon bi bi-receipt-cutoff"></i>
+                                <p>
+                                    Quản lý Đơn hàng
+                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="@Url.Action("DanhSach", "QLĐH")" class="nav-link">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Danh sách Đơn hàng</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="@Url.Action("ChiTiet", "QLĐH")" class="nav-link">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Chi tiết Đơn hàng</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <!-- 4. QUẢN LÝ VOUCHER (QLVC) -->
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon bi bi-tags-fill"></i>
+                                <p>
+                                    Quản lý Voucher
+                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="@Url.Action("DanhSach", "QLVC")" class="nav-link">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Danh sách Voucher</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="@Url.Action("TaoMoi", "QLVC")" class="nav-link">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Tạo mới Voucher</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <!-- 5. HỖ TRỢ / KHIẾU NẠI -->
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon bi bi-exclamation-circle-fill"></i>
+                                <p>
+                                    Khiếu nại & Hỗ trợ
+                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="@Url.Action("GuiYeuCau", "HoTro")" class="nav-link">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Gửi yêu cầu mới</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="@Url.Action("LichSuHoTro", "HoTro")" class="nav-link">
+                                        <i class="nav-icon bi bi-circle"></i>
+                                        <p>Lịch sử đã gửi</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <!-- 6. THÔNG TIN CỬA HÀNG -->
+                        <li class="nav-item">
+                            <a href="@Url.Action("ThongTin", "QLCH")" class="nav-link">
+                                <i class="nav-icon bi bi-shop"></i>
+                                <p>Thông tin Cửa hàng</p>
+                            </a>
+                        </li>
+
+                        <!-- 7. QUẢN LÝ REVIEW -->
+                        <li class="nav-item">
+                            <a href="@Url.Action("QLReviewIndex", "QLReview")" class="nav-link">
+                                <i class="nav-icon bi bi-chat-text-fill"></i>
+                                <p>Quản lý Review</p>
+                            </a>
+                        </li>
+
+                        <!-- 8. THÔNG BÁO (MỤC MỚI) -->
+                        <li class="nav-item">
+                            <!-- Link đến Action ThongbaoIndex như yêu cầu -->
+                            <a href="@Url.Action("ThongbaoIndex", "ThongBao")" class="nav-link">
+                                <i class="nav-icon bi bi-bell-fill"></i>
+                                <p>
+                                    Thông báo
+                                    <!-- Badge hiện số tin chưa đọc -->
+                                    <span class="badge text-bg-danger float-end" id="sidebar-noti-badge" style="display:none">0</span>
+                                </p>
+                            </a>
+                        </li>
+
                     </ul>
                 </nav>
             </div>
         </aside>
-        <!--end::Sidebar-->
-        <!--begin::App Main-->
+
+        <!-- MAIN CONTENT -->
         <main class="app-main">
             @RenderBody()
         </main>
-        <!--end::App Main-->
-        <!--begin::Footer-->
+
+        <!-- FOOTER -->
         <footer class="app-footer">
             <div class="float-end d-none d-sm-inline">Anything you want</div>
             <strong>
@@ -106,38 +245,82 @@
             </strong>
             All rights reserved.
         </footer>
-        <!--end::Footer-->
     </div>
-    <!--end::App Wrapper-->
-    <!-- Scripts chung cho toàn bộ trang -->
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
+
+    <!-- POPUP TOAST ALERT (GÓC PHẢI MÀN HÌNH) -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+        <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-danger text-white">
+                <i class="bi bi-megaphone-fill me-2"></i>
+                <strong class="me-auto" id="toast-title">Thông báo mới</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body bg-white" id="toast-body">
+                Nội dung thông báo...
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
     <script src="~/Scripts/adminlte.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/browser/overlayscrollbars.browser.es6.min.js" crossorigin="anonymous"></script>
 
-    <!-- Script khởi tạo chung của AdminLTE -->
     <script>
-        const SELECTOR_SIDEBAR_WRAPPER = '.sidebar-wrapper';
-        const Default = {
-            scrollbarTheme: 'os-theme-light',
-            scrollbarAutoHide: 'leave',
-            scrollbarClickScroll: true,
-        };
-        document.addEventListener('DOMContentLoaded', function () {
-            const sidebarWrapper = document.querySelector(SELECTOR_SIDEBAR_WRAPPER);
-            if (sidebarWrapper && typeof OverlayScrollbarsGlobal !== 'undefined') {
-                OverlayScrollbarsGlobal.OverlayScrollbars(sidebarWrapper, {
-                    scrollbars: {
-                        theme: Default.scrollbarTheme,
-                        autoHide: Default.scrollbarAutoHide,
-                        clickScroll: Default.scrollbarClickScroll,
+        const osBody = OverlayScrollbars(document.querySelector('body'), { scrollbars: { autoHide: 'leave' } });
+        const osSidebar = OverlayScrollbars(document.querySelector('.app-sidebar'), { scrollbars: { autoHide: 'leave' } });
+    </script>
+
+    <!-- SCRIPT TỰ ĐỘNG CHECK THÔNG BÁO (AJAX) -->
+    <script>
+        $(document).ready(function () {
+            var currentUnread = 0;
+
+            function checkAlerts() {
+                $.ajax({
+                    url: '/ThongBao/GetNewNotifications',
+                    type: 'GET',
+                    success: function (res) {
+                        if (res.success) {
+                            var unread = res.unread;
+                            var latest = res.latest;
+
+                            // 1. Cập nhật số badge ở Menu bên trái
+                            if (unread > 0) {
+                                $("#sidebar-noti-badge").text(unread).show();
+                            } else {
+                                $("#sidebar-noti-badge").hide();
+                            }
+
+                            // 2. Hiện Popup Alert nếu có tin mới tăng thêm
+                            if (unread > currentUnread && latest != null) {
+                                showToast(latest.Title, latest.Message);
+                            }
+
+                            currentUnread = unread;
+                        }
                     },
+                    error: function () {
+                        // console.log("Lỗi kết nối server thông báo");
+                    }
                 });
             }
+
+            // Hàm hiển thị Toast
+            function showToast(title, message) {
+                $("#toast-title").text(title);
+                $("#toast-body").text(message);
+                var toastEl = document.getElementById('liveToast');
+                var toast = new bootstrap.Toast(toastEl);
+                toast.show();
+            }
+
+            // Chạy ngay khi load trang
+            checkAlerts();
+            // Lặp lại mỗi 5 giây
+            setInterval(checkAlerts, 5000);
         });
     </script>
 
-    <!-- Vị trí để các trang con (như DSSP.cshtml) chèn script của riêng mình -->
     @RenderSection("scripts", required: false)
 
 </body>

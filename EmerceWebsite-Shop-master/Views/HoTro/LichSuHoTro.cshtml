@@ -1,0 +1,64 @@
+﻿
+@{
+    ViewBag.Title = "LichSuHoTro";
+}
+
+<h2>LichSuHoTro</h2>
+
+@model IEnumerable<EmerceWebsite_Shop_master.Models.SupportRequest>
+@{
+    ViewBag.Title = "Lịch sử khiếu nại";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card" style="margin-top: 20px;">
+    <div class="card-header">
+        <h3 class="card-title">Danh sách khiếu nại đã gửi</h3>
+        <div class="card-tools">
+            <a href="/HoTro/GuiYeuCau" class="btn btn-success btn-sm">Tạo đơn mới</a>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Ngày gửi</th>
+                    <th>ID Shop</th>
+                    <th>Nội dung</th>
+                    <th>Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>#@item.RequestID</td>
+                            <td>@string.Format("{0:dd/MM/yyyy HH:mm}", item.CreatedDate)</td>
+                            <td>@item.ShopID</td>
+                            <td>@item.Content</td>
+                            <td><span class="badge bg-warning text-dark">@item.Status</span></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="5" class="text-center">Chưa có dữ liệu.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<!-- SCRIPT HIỆN THÔNG BÁO -->
+<script>
+    // Sử dụng Html.Raw để hiển thị tiếng Việt không bị lỗi font
+    var msg = '@Html.Raw(TempData["ThongBaoSuccess"])';
+
+    if (msg && msg.length > 0) {
+        alert(msg);
+    }
+</script>

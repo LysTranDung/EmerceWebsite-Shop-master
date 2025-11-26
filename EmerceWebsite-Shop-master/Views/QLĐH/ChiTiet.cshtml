@@ -1,0 +1,141 @@
+﻿
+@{
+    ViewBag.Title = "ChiTiet";
+}
+
+@{
+    ViewBag.Title = "Chi tiết Đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="app-content-header"><div class="container-fluid"><h3 class="mb-0">@ViewBag.Title - #<span id="order-id-display">@ViewBag.OrderID</span></h3></div></div>
+
+<div class="app-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card card-primary card-outline mb-4">
+                    <div class="card-header"><h3 class="card-title">Thông tin Khách hàng & Thanh toán</h3></div>
+                    <div class="card-body">
+                        <p><strong>Khách hàng:</strong> <span id="customer-name"></span></p>
+                        <p><strong>Số điện thoại:</strong> <span id="customer-phone"></span></p>
+                        <p><strong>Địa chỉ:</strong> <span id="customer-address"></span></p>
+                        <hr>
+                        <p><strong>Ngày đặt:</strong> <span id="order-date"></span></p>
+                        <p><strong>Phương thức thanh toán:</strong> <span id="payment-method"></span></p>
+                        <p><strong>Tổng tiền:</strong> <span id="total-amount"></span></p>
+                    </div>F
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card card-warning card-outline mb-4">
+                    <div class="card-header"><h3 class="card-title">Trạng thái Đơn hàng</h3></div>
+                    <div class="card-body">
+                        <p><strong>Trạng thái Đơn hàng:</strong> <span id="order-status-display" class="badge bg-primary"></span></p>
+                        <p><strong>Trạng thái Giao hàng:</strong> <span id="shipment-status-display" class="badge bg-secondary"></span></p>
+                        <hr>
+                        <label for="status-select">Cập nhật Trạng thái:</label>
+                        <select id="status-select" class="form-control mb-3">
+                            <option value="Chờ thanh toán">Chờ thanh toán</option>
+                            <option value="Đã thanh toán">Đã thanh toán</option>
+                            <option value="Đang chuẩn bị">Đang chuẩn bị</option>
+                            <option value="Đang giao">Đang giao</option>
+                            <option value="Đã giao">Đã giao</option>
+                            <option value="Đã hủy">Đã hủy</option>
+                        </select>
+                        <button id="btn-update-status" class="btn btn-warning">Cập nhật</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-info card-outline mb-4">
+            <div class="card-header"><h3 class="card-title">Sản phẩm trong Đơn hàng</h3></div>
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr><th>Sản phẩm</th><th>Số lượng</th><th>Giá đơn vị</th></tr>
+                    </thead>
+                    <tbody id="order-items-table">
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer">
+                <a href="@Url.Action("DanhSach", "QLĐH")" class="btn btn-secondary">Quay lại danh sách</a>
+                <button type="button" class="btn btn-success" onclick="alert('Chức năng In Hóa Đơn đã được bỏ qua.')">In Hóa đơn</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            var orderId = '@ViewBag.OrderID';
+            loadOrderDetails(orderId);
+
+            $("#btn-update-status").click(function () {
+                var newStatus = $("#status-select").val();
+                updateOrderStatus(orderId, newStatus);
+            });
+        });
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+
+        function loadOrderDetails(id) {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetOrderDetails", "QLĐH")',
+                data: { id: id },
+                dataType: "json",
+                success: function (data) {
+                    if (data && data.order) {
+                        // Cập nhật thông tin Order và Customer
+                        $("#customer-name").text(data.order.CustomerName);
+                        $("#customer-phone").text(data.order.Phone);
+                        $("#customer-address").text(data.order.CustomerAddress);
+                        $("#order-date").text(new Date(parseInt(data.order.OrderDate.substr(6))).toLocaleString());
+                        $("#payment-method").text(data.order.PaymentMethod);
+                        $("#total-amount").text(formatCurrency(data.order.TotalAmount));
+
+                        $("#order-status-display").text(data.order.OrderStatus).attr('class', 'badge bg-' + (data.order.OrderStatus === 'Đã thanh toán' || data.order.OrderStatus === 'Đã giao' ? 'success' : 'warning'));
+                        $("#shipment-status-display").text(data.order.ShipmentStatus || 'Chưa gửi').attr('class', 'badge bg-' + (data.order.ShipmentStatus === 'Hoàn thành' ? 'success' : 'secondary'));
+                        $("#status-select").val(data.order.OrderStatus);
+
+                        // Cập nhật Order Items
+                        var itemsHtml = "";
+                        $.each(data.items, function (index, item) {
+                            itemsHtml += "<tr>"
+                                + "<td>" + item.ProductName + "</td>"
+                                + "<td>" + item.Quantity + "</td>"
+                                + "<td>" + formatCurrency(item.Price) + "</td>"
+                                + "</tr>";
+                        });
+                        $("#order-items-table").html(itemsHtml);
+                    } else {
+                        alert("Không tìm thấy chi tiết Đơn hàng.");
+                    }
+                }
+            });
+        }
+
+        function updateOrderStatus(id, newStatus) {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("UpdateStatus", "QLĐH")',
+                data: { orderId: id, newStatus: newStatus },
+                success: function (response) {
+                    alert(response);
+                    // Tải lại chi tiết sau khi cập nhật
+                    loadOrderDetails(id);
+                },
+                error: function () {
+                    alert("Đã xảy ra lỗi khi cập nhật trạng thái.");
+                }
+            });
+        }
+    </script>
+}

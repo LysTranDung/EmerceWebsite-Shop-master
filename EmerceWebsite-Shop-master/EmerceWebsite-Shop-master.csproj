@@ -115,7 +115,14 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\HoTroController.cs" />
+    <Compile Include="Controllers\QLCHController.cs" />
+    <Compile Include="Controllers\QLReviewController.cs" />
     <Compile Include="Controllers\QLSPController.cs" />
+    <Compile Include="Controllers\QLVCController.cs" />
+    <Compile Include="Controllers\QLĐHController.cs" />
+    <Compile Include="Controllers\ThongBaoController.cs" />
+    <Compile Include="Controllers\ThongkespController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -124,6 +131,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Database.dbml</DependentUpon>
     </Compile>
+    <Compile Include="Models\ReviewViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -233,6 +241,18 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\QLSP\DSSP.cshtml" />
     <Content Include="Views\QLSP\ThemSP.cshtml" />
+    <Content Include="Views\QLSP\ChinhSua.cshtml" />
+    <Content Include="Views\ThongKe\ThongKe.cshtml" />
+    <Content Include="Views\ThongKe\BaoCao.cshtml" />
+    <Content Include="Views\QLCH\ThongTin.cshtml" />
+    <Content Include="Views\QLVC\DanhSach.cshtml" />
+    <Content Include="Views\QLVC\TaoMoi.cshtml" />
+    <Content Include="Views\QLĐH\DanhSach.cshtml" />
+    <Content Include="Views\QLĐH\ChiTiet.cshtml" />
+    <Content Include="Views\QLReview\QLReviewIndex.cshtml" />
+    <Content Include="Views\HoTro\GuiYeuCau.cshtml" />
+    <Content Include="Views\HoTro\LichSuHoTro.cshtml" />
+    <Content Include="Views\ThongBao\ThongbaoIndex.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

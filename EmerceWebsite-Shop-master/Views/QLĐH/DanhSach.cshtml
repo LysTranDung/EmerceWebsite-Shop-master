@@ -1,0 +1,84 @@
+﻿
+@{
+    ViewBag.Title = "DanhSach";
+}
+
+<h2>DanhSach</h2>
+
+@{
+    ViewBag.Title = "Quản lý Đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">@ViewBag.Title</h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-success btn-sm" onclick="exportToExcel()">Xuất Excel</button>
+        </div>
+    </div>
+    <div class="card-body">
+        <table id="tbl_orders" class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Khách hàng</th>
+                    <th>Ngày đặt</th>
+                    <th>Tổng tiền</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            loadOrders();
+        });
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+
+        function loadOrders() {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetOrders", "QLĐH")',
+                dataType: "json",
+                success: function (response) {
+                    var html_str = "";
+                    if (response && response.length > 0) {
+                        $.each(response, function (index, order) {
+                            var statusColor = order.OrderStatus === 'Đã thanh toán' ? 'badge bg-success' : 'badge bg-warning';
+                            var orderDate = new Date(parseInt(order.OrderDate.substr(6))).toLocaleDateString();
+
+                            html_str += "<tr>"
+                                + "<td>" + order.OrderID + "</td>"
+                                + "<td>" + order.CustomerName + "</td>"
+                                + "<td>" + orderDate + "</td>"
+                                + "<td>" + formatCurrency(order.TotalAmount) + "</td>"
+                                + "<td><span class='badge " + statusColor + "'>" + order.OrderStatus + "</span></td>"
+                                + "<td>"
+                                + "<a href='@Url.Action("ChiTiet", "QLĐH")/" + order.OrderID + "' class='btn btn-info btn-sm'>Xem</a>"
+                                + "</td>"
+                                + "</tr>";
+                        });
+                    } else {
+                        html_str += "<tr><td colspan='6' class='text-center'>Không có Đơn hàng nào.</td></tr>";
+                    }
+
+                    $("#tbl_orders tbody").html(html_str);
+                }
+            });
+        }
+
+        function exportToExcel() {
+            alert("Chức năng xuất Excel yêu cầu thư viện và Action Controller phức tạp hơn, đã được bỏ qua trong phiên bản này.");
+        }
+    </script>
+}
