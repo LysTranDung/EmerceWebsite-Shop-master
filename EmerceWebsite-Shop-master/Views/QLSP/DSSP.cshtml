@@ -15,29 +15,35 @@
         </table>
     </div>
 </div>
-
 @section scripts {
     <script>
-    // Hàm này sẽ được gọi khi trang được tải xong
+
     $(document).ready(function () {
         loadProducts();
     });
 
-    // Hàm dùng để gọi API và tải danh sách sản phẩm
+
     function loadProducts() {
         $.ajax({
             type: "POST",
             url: '@Url.Action("GetProducts", "QLSP")',
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
             success: function (response) {
                 var tbl_products = $("#tbl_products");
                 var html_str = "<thead><tr><th>STT</th><th>Tên sản phẩm</th><th>Giá</th><th>Tồn kho</th><th>Thương hiệu</th><th>Thao tác</th></tr></thead><tbody>";
 
-                if (response && response.length > 0) {
-                    for (var i = 0; i < response.length; i++) {
-                        var product = response[i];
+ 
 
+                var productList = response.data;
+
+                if (response.success === false) {
+                    // Xử lý lỗi từ Controller (nếu có)
+                    html_str += "<tr><td colspan='6' class='text-center text-danger'>Lỗi tải dữ liệu: " + response.message + "</td></tr>";
+                }
+                else if (productList && productList.length > 0) {
+                    for (var i = 0; i < productList.length; i++) {
+                        var product = productList[i]; // Lấy từ response.data
+
+                        // Định dạng tiền tệ
                         var formattedPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.Price);
 
                         html_str += "<tr>"
@@ -47,8 +53,8 @@
                             + "<td>" + product.Stock + "</td>"
                             + "<td>" + product.Brand + "</td>"
                             + "<td>"
-                            // URL Sửa
-                            + "<a href='@Url.Action("ChinhSua", "QLSP")/" + product.ProductID + "' class='btn btn-warning btn-sm'>Sửa</a> "
+                            // URL Sửa (sử dụng cú pháp query parameter an toàn)
+                            + "<a href='@Url.Action("ChinhSua", "QLSP")?id=" + product.ProductID + "' class='btn btn-warning btn-sm'>Sửa</a> "
                             // Nút Xóa
                             + "<button type='button' class='btn btn-danger btn-sm' onclick='confirmDelete(" + product.ProductID + ")'>Xóa</button>"
                             + "</td>"
@@ -57,6 +63,7 @@
                 } else {
                     html_str += "<tr><td colspan='6' class='text-center'>Chưa có sản phẩm nào.</td></tr>";
                 }
+                
 
                 html_str += "</tbody>";
                 tbl_products.html(html_str);
@@ -64,7 +71,10 @@
             error: function (xhr, status, error) {
                 console.log("Lỗi khi tải danh sách sản phẩm:", error);
                 var tbl_products = $("#tbl_products");
-                tbl_products.html("<tr><td colspan='6' class='text-center text-danger'>Không thể tải được dữ liệu. Vui lòng thử lại.</td></tr>");
+                // Thêm thead để bảng không bị trống
+                var error_html = "<thead><tr><th>STT</th><th>Tên sản phẩm</th><th>Giá</th><th>Tồn kho</th><th>Thương hiệu</th><th>Thao tác</th></tr></thead>";
+                error_html += "<tbody><tr><td colspan='6' class='text-center text-danger'>Không thể tải được dữ liệu. Vui lòng kiểm tra console hoặc API Controller.</td></tr></tbody>";
+                tbl_products.html(error_html);
             }
         });
     }
@@ -77,12 +87,18 @@
                 url: '@Url.Action("Delete", "QLSP")',
                 data: { id: productId },
                 success: function (response) {
-                    alert(response);
-                    // Tải lại danh sách sau khi xóa thành công
+                    // API Delete trả về { success: true/false }
+                    if (response.success) {
+                        alert("Xóa sản phẩm thành công!");
+                    } else {
+                        alert("Xóa thất bại. Vui lòng kiểm tra lại Controller.");
+                    }
+
+                    // Tải lại danh sách sau khi xóa thành công/thất bại
                     loadProducts();
                 },
                 error: function (xhr, status, error) {
-                    alert("Đã xảy ra lỗi khi xóa sản phẩm.");
+                    alert("Đã xảy ra lỗi kết nối khi xóa sản phẩm.");
                     console.log(error);
                 }
             });

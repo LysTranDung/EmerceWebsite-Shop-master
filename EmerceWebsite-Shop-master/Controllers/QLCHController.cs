@@ -3,31 +3,29 @@ using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using EmerceWebsite_Shop_master.Models; // Đảm bảo đúng namespace của Models
+using EmerceWebsite_Shop_master.Models; 
 
 namespace EmerceWebsite_Shop_master.Controllers
 {
     public class QLCHController : Controller
     {
-        // Khai báo DataContext (giả định là DatabaseDataContext)
         private DatabaseDataContext db = new DatabaseDataContext();
 
         // GET: QLCH/ThongTin
         public ActionResult ThongTin()
         {
-            // Lấy thông tin cửa hàng đầu tiên (giả định chỉ có 1 row cấu hình Shop)
+            // Lấy thông tin cửa hàng đầu tiên 
             Shop shop = db.Shops.FirstOrDefault();
 
             if (shop == null)
             {
-                // Nếu chưa có dữ liệu, bạn có thể tạo một đối tượng Shop mới
+                // Nếu chưa có dữ liệu, tạo một đối tượng Shop mới
                 shop = new Shop();
             }
 
             return View(shop);
         }
 
-        // POST: QLCH/UpdateThongTin (Xử lý dữ liệu và file tải lên)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult UpdateThongTin(Shop model, HttpPostedFileBase ShopLogoFile)
@@ -38,7 +36,7 @@ namespace EmerceWebsite_Shop_master.Controllers
 
                 if (shopToUpdate == null)
                 {
-                    // Trường hợp chưa có bản ghi Shop nào, bạn cần tạo mới và thêm vào DB
+                    // Trường hợp chưa có bản ghi Shop nào, tạo mới và thêm vào DB
                     shopToUpdate = new Shop();
                     db.Shops.InsertOnSubmit(shopToUpdate);
                 }
@@ -48,17 +46,13 @@ namespace EmerceWebsite_Shop_master.Controllers
                 {
                     try
                     {
-                        // Định nghĩa thư mục lưu ảnh (ví dụ: ~/img/shop/)
                         string folderPath = Server.MapPath("~/img/shop/");
 
-                        // Đảm bảo thư mục tồn tại
                         if (!System.IO.Directory.Exists(folderPath))
                         {
                             System.IO.Directory.CreateDirectory(folderPath);
                         }
 
-                        // Tạo tên file duy nhất (để tránh trùng lặp)
-                        // Định dạng: tenfile_Ticks.ext
                         string fileName = Path.GetFileNameWithoutExtension(ShopLogoFile.FileName)
                                         + "_" + DateTime.Now.Ticks
                                         + Path.GetExtension(ShopLogoFile.FileName);
@@ -70,23 +64,15 @@ namespace EmerceWebsite_Shop_master.Controllers
 
                         // Lưu đường dẫn tương đối vào Database
                         shopToUpdate.LogoUrl = "~/img/shop/" + fileName;
-
-                        // Nếu có ảnh cũ, bạn có thể xóa ảnh cũ ở đây (Optional)
-                        // if (!string.IsNullOrEmpty(shopToUpdate.LogoUrl)) { /* Logic xóa file cũ */ }
                     }
                     catch (Exception ex)
                     {
                         return Json(new { success = false, message = "Lỗi khi lưu file: " + ex.Message });
                     }
                 }
-                else
-                {
-                    // Nếu không tải file mới, giữ nguyên đường dẫn LogoUrl cũ trong DB
-                    // (Lưu ý: Nếu bạn có trường LogoUrl trong form gửi lên, cần xử lý khác)
-                    // Ở đây, ta giữ nguyên giá trị LogoUrl hiện tại của shopToUpdate.
-                }
+        
 
-                // --- 2. Cập nhật các trường thông tin khác ---
+                // --- Cập nhật các trường thông tin khác ---
                 shopToUpdate.ShopName = model.ShopName;
                 shopToUpdate.ShopLocation = model.ShopLocation;
                 shopToUpdate.ShopPolicy = model.ShopPolicy;

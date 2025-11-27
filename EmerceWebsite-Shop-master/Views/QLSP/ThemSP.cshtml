@@ -1,4 +1,5 @@
-﻿@{
+﻿@model EmerceWebsite_Shop_master.Models.Product
+@{
     ViewBag.Title = "Thêm sản phẩm mới";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -25,29 +26,51 @@
                     <form id="form-product">
                         <div class="card-body">
                             <div class="row">
+
+                                <!-- 1. Tên Sản phẩm -->
                                 <div class="col-lg-12 mb-3">
                                     <label for="txt_ProductName" class="form-label">Tên sản phẩm</label>
-                                    <input type="text" class="form-control" name="ProductName" id="txt_ProductName" placeholder="Ví dụ: Nồi cơm điện Sunhouse" required />
+                                    <input type="text" class="form-control" name="ProductName" id="txt_ProductName"  required />
                                 </div>
 
+                                <!-- 2. Mô tả Ngắn (ProductDescription) -->
                                 <div class="col-lg-12 mb-3">
-                                    <label for="txt_Description" class="form-label">Mô tả sản phẩm</label>
+                                    <label for="txt_Description" class="form-label">Mô tả Ngắn (Tóm tắt)</label>
+                                    <!-- Cột này ánh xạ tới ProductDescription -->
                                     <textarea id="txt_Description" name="ProductDescription" class="form-control" rows="3"></textarea>
                                 </div>
 
+                       
+                                <!-- 3. Tính năng/Đặc điểm (ProductFeature) -->
+                                <div class="col-lg-12 mb-3">
+                                    <label for="ProductFeature" class="form-label">Tính năng</label>
+                                    <!-- Cột này ánh xạ tới ProductFeature -->
+                                    <textarea id="ProductFeature" name="ProductFeature" class="form-control" rows="4" ></textarea>
+                                    
+                                </div>
+
+                                <!-- 4. Mô tả Chi tiết/Dài (DescriptionDetails) -->
+                                <div class="col-lg-12 mb-3">
+                                    <label for="DescriptionDetails" class="form-label">Mô tả Chi tiết</label>
+                                    <!-- Cột này ánh xạ tới DescriptionDetails -->
+                                    <textarea id="DescriptionDetails" name="DescriptionDetails" class="form-control" rows="6" ></textarea>
+                                   
+                                </div>
+
+                              
                                 <div class="col-lg-4 mb-3">
                                     <label for="txt_Price" class="form-label">Giá bán</label>
-                                    <input type="number" class="form-control" name="Price" id="txt_Price" placeholder="Ví dụ: 199000" required min="1000" />
+                                    <input type="number" class="form-control" name="Price" id="txt_Price"  required min="1000" />
                                 </div>
 
                                 <div class="col-lg-4 mb-3">
                                     <label for="txt_Stock" class="form-label">Số lượng tồn kho</label>
-                                    <input type="number" class="form-control" name="Stock" id="txt_Stock" placeholder="Ví dụ: 50" required min="0" />
+                                    <input type="number" class="form-control" name="Stock" id="txt_Stock"  required min="1" />
                                 </div>
 
                                 <div class="col-lg-4 mb-3">
                                     <label for="txt_Brand" class="form-label">Thương hiệu</label>
-                                    <input type="text" class="form-control" name="Brand" id="txt_Brand" placeholder="Ví dụ: Sunhouse" />
+                                    <input type="text" class="form-control" name="Brand" id="txt_Brand"  />
                                 </div>
                             </div>
                         </div>
@@ -64,6 +87,12 @@
 @section scripts {
     <script>
     $("#btn_submit_create").click(function () {
+        // Kiểm tra validation cơ bản của form
+        if (!$('#form-product')[0].checkValidity()) {
+            $('#form-product')[0].reportValidity();
+            return;
+        }
+
         // Lấy dữ liệu từ form
         var form = $('#form-product')[0];
         var formData = new FormData(form);
@@ -78,15 +107,24 @@
             contentType: false,
             cache: false,
             success: function (response) {
-                alert(response); // Hiển thị thông báo từ server
-                if (response.toLowerCase().includes("thành công")) {
+                if (response.message) {
+                    alert(response.message);
+                } else if (response.success != undefined) {
+                    // Xử lý trường hợp message không có nhưng success/fail có
+                    alert(response.success ? "Thao tác thành công!" : "Thao tác thất bại.");
+                } else {
+                    alert("Đã nhận phản hồi không rõ định dạng từ server.");
+                }
+
+                if (response.success) {
                     // Nếu thành công, chuyển hướng về trang danh sách
                     window.location.href = '@Url.Action("DSSP", "QLSP")';
                 }
             },
-            error: function (data) {
-                alert("Đã xảy ra lỗi khi thêm sản phẩm.");
-                console.log(data);
+            error: function (xhr, status, error) {
+                alert("Đã xảy ra lỗi khi thêm sản phẩm. Vui lòng kiểm tra console log.");
+                console.log("AJAX Error:", status, error);
+                console.log("Response Text:", xhr.responseText);
             }
         });
     });

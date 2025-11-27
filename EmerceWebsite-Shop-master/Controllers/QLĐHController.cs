@@ -21,7 +21,7 @@ namespace EmerceWebsite_Shop_master.Controllers
         [HttpPost]
         public JsonResult GetOrders()
         {
-            // (Giữ nguyên code cũ của bạn ở đây...)
+    
             using (DatabaseDataContext db = new DatabaseDataContext())
             {
                 var orders = (from o in db.Orders
@@ -45,7 +45,7 @@ namespace EmerceWebsite_Shop_master.Controllers
         [HttpPost]
         public JsonResult GetOrderDetails(int id)
         {
-            // (Giữ nguyên code cũ...)
+          
             using (DatabaseDataContext db = new DatabaseDataContext())
             {
                 var orderInfo = (from o in db.Orders
@@ -66,7 +66,7 @@ namespace EmerceWebsite_Shop_master.Controllers
             }
         }
 
-        // === SỬA PHẦN CẬP NHẬT TRẠNG THÁI ===
+        // --- PHẦN CẬP NHẬT TRẠNG THÁI ---
         [HttpPost]
         public string UpdateStatus(int orderId, string newStatus)
         {
@@ -90,9 +90,9 @@ namespace EmerceWebsite_Shop_master.Controllers
                             }
                         }
 
-                        // ====================================================
-                        // TẠO THÔNG BÁO: TRẠNG THÁI ĐƠN HÀNG THAY ĐỔI
-                        // ====================================================
+                    
+                        // --- TẠO THÔNG BÁO: TRẠNG THÁI ĐƠN HÀNG THAY ĐỔI ---
+                        
                         ShopNotification noti = new ShopNotification();
                         noti.ShopID = currentShopId;
                         noti.Title = "📦 Cập nhật đơn hàng #" + orderId;

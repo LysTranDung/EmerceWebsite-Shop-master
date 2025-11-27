@@ -93,7 +93,6 @@
                 dataType: "json",
                 success: function (data) {
                     if (data && data.order) {
-                        // Cập nhật thông tin Order và Customer
                         $("#customer-name").text(data.order.CustomerName);
                         $("#customer-phone").text(data.order.Phone);
                         $("#customer-address").text(data.order.CustomerAddress);

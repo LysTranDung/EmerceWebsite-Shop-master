@@ -1,6 +1,5 @@
 ﻿using EmerceWebsite_Shop_master.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -8,26 +7,34 @@ namespace EmerceWebsite_Shop_master.Controllers
 {
     public class QLSPController : Controller
     {
+
         DatabaseDataContext db = new DatabaseDataContext();
+        // Giả sử ShopID hiện tại là 1
         int currentShopId = 1;
 
-        // 1. TRANG DANH SÁCH (Chỉ trả về khung HTML, không truyền Model)
+        // TRANG DANH SÁCH 
         public ActionResult DSSP()
         {
             return View();
         }
 
-        public ActionResult ThemSP() { return View(); }
+        // TRANG THÊM MỚI
+        public ActionResult ThemSP()
+        {
+   
+            return View(new Product());
+        }
 
+        // 3. TRANG CHỈNH SỬA
         public ActionResult ChinhSua(int? id)
         {
-            ViewBag.ProductID = id; // Truyền ID để lát JS gọi API lấy chi tiết
+            ViewBag.ProductID = id ?? 0;
             return View();
         }
 
-        // ================= API DATA ================= //
+      
 
-        // API 1: LẤY DANH SÁCH SẢN PHẨM
+        //  LẤY DANH SÁCH SẢN PHẨM
         [HttpPost]
         public JsonResult GetProducts()
         {
@@ -45,33 +52,53 @@ namespace EmerceWebsite_Shop_master.Controllers
                                 p.Stock,
                                 p.Brand
                             }).ToList();
-                return Json(list);
+
+                return Json(new { success = true, data = list });
             }
-            catch { return Json(new List<object>()); }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi truy vấn Database: " + ex.Message });
+            }
         }
 
-        // API 2: LẤY CHI TIẾT 1 SẢN PHẨM
+        //  LẤY CHI TIẾT 1 SẢN PHẨM 
         [HttpPost]
         public JsonResult GetProductDetails(int id)
         {
+            if (id <= 0) return Json(null);
+
             var p = db.Products.Select(x => new {
                 x.ProductID,
                 x.ProductName,
                 x.Price,
                 x.Stock,
                 x.Brand,
-                x.ProductDescription
-            }).FirstOrDefault(x => x.ProductID == id);
+                // Bổ sung các trường mô tả mới
+                x.ProductDescription,
+                x.ProductFeature,
+                x.DescriptionDetails
+            })
+            .FirstOrDefault(x => x.ProductID == id);
+
             return Json(p);
         }
 
-        // API 3: THÊM SẢN PHẨM
+        // THÊM SẢN PHẨM 
         [HttpPost]
         public JsonResult Insert(Product product)
         {
             try
             {
+                // Kiểm tra điều kiện bắt buộc
+                if (string.IsNullOrEmpty(product.ProductName) || product.Price == null || product.Stock == null)
+                {
+                    return Json(new { success = false, message = "Vui lòng nhập đầy đủ Tên, Giá và Tồn kho." });
+                }
+
                 product.IsDelete = false;
+
+                // Các trường mô tả (ProductDescription, ProductFeature, DescriptionDetails) được gán giá trị 
+                // tự động từ form input thông qua Model Binding.
                 db.Products.InsertOnSubmit(product);
                 db.SubmitChanges();
 
@@ -79,12 +106,15 @@ namespace EmerceWebsite_Shop_master.Controllers
                 db.ProductShops.InsertOnSubmit(ps);
                 db.SubmitChanges();
 
-                return Json(new { success = true, message = "Thêm thành công!" });
+                return Json(new { success = true, message = "Thêm sản phẩm thành công!" });
             }
-            catch (Exception ex) { return Json(new { success = false, message = ex.Message }); }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi hệ thống khi thêm sản phẩm: " + ex.Message });
+            }
         }
 
-        // API 4: CẬP NHẬT (KÈM THÔNG BÁO TỰ ĐỘNG)
+        // CẬP NHẬT 
         [HttpPost]
         public JsonResult Update(int txt_ProductID_hide, Product product)
         {
@@ -98,8 +128,9 @@ namespace EmerceWebsite_Shop_master.Controllers
                     existing.Stock = product.Stock;
                     existing.Brand = product.Brand;
                     existing.ProductDescription = product.ProductDescription;
-
-                    // --- LOGIC THÔNG BÁO: CẢNH BÁO TỒN KHO ---
+                    existing.ProductFeature = product.ProductFeature;
+                    existing.DescriptionDetails = product.DescriptionDetails;
+                    
                     if (existing.Stock <= 5)
                     {
                         ShopNotification noti = new ShopNotification();
@@ -115,25 +146,32 @@ namespace EmerceWebsite_Shop_master.Controllers
                     // -----------------------------------------
 
                     db.SubmitChanges();
-                    return Json(new { success = true, message = "Cập nhật thành công!" });
+                    return Json(new { success = true, message = "Cập nhật sản phẩm thành công!" });
                 }
-                return Json(new { success = false, message = "Không tìm thấy SP" });
+                return Json(new { success = false, message = "Không tìm thấy sản phẩm cần cập nhật." });
             }
-            catch (Exception ex) { return Json(new { success = false, message = ex.Message }); }
+            catch (Exception ex) { return Json(new { success = false, message = "Lỗi cập nhật: " + ex.Message }); }
         }
 
-        // API 5: XÓA
+        //  XÓA
         [HttpPost]
         public JsonResult Delete(int id)
         {
-            var p = db.Products.FirstOrDefault(x => x.ProductID == id);
-            if (p != null)
+            try
             {
-                p.IsDelete = true;
-                db.SubmitChanges();
-                return Json(new { success = true });
+                var p = db.Products.FirstOrDefault(x => x.ProductID == id);
+                if (p != null)
+                {
+                    p.IsDelete = true;
+                    db.SubmitChanges();
+                    return Json(new { success = true, message = "Xóa sản phẩm thành công." });
+                }
+                return Json(new { success = false, message = "Không tìm thấy sản phẩm cần xóa." });
             }
-            return Json(new { success = false });
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Lỗi xóa: " + ex.Message });
+            }
         }
     }
 }

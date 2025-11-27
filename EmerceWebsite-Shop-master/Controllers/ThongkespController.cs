@@ -8,28 +8,23 @@ namespace EmerceWebsite_Shop_master.Controllers
 {
     public class ThongKeController : Controller
     {
-        // === CÁC ACTION TRẢ VỀ VIEW (TRANG) ===
 
-        // GET: /ThongKe/DoanhThu
-        // Trả về trang Thống kê doanh thu chi tiết dạng bảng
         public ActionResult ThongKe()
         {
             return View();
         }
 
-        // GET: /ThongKe/BaoCao
-        // Trả về trang Báo cáo tổng quan với các chỉ số và biểu đồ
         public ActionResult BaoCao()
         {
             return View();
         }
 
-        // === ACTION API ĐỂ LẤY DỮ LIỆU ===
+
 
         [HttpPost]
         public JsonResult GetData(string filterType, DateTime? startDate, DateTime? endDate)
         {
-            int currentShopId = 1; // Giả định ShopID = 1
+            int currentShopId = 1;
 
             DateTime? start = null;
             DateTime? end = null;
@@ -71,7 +66,7 @@ namespace EmerceWebsite_Shop_master.Controllers
                                              .Select(ps => ps.ProductID)
                                              .ToList();
 
-                    // Tạo một câu truy vấn IQueryable để có thể tái sử dụng
+                   
                     var query = (from order in db.Orders
                                  join item in db.OrderItems on order.OrderID equals item.OrderID
                                  where productIdsOfShop.Contains(item.ProductID)
@@ -100,12 +95,13 @@ namespace EmerceWebsite_Shop_master.Controllers
                         })
                         .OrderBy(r => r.Date)
                         .ToList();
-
+                    // -- TỔNG DOANH THU --
                     var totalRevenue = validOrdersInRange.Sum(o => (decimal?)o.TotalAmount) ?? 0;
+                    //--TỔNG ĐƠN HÀNG --
                     var totalOrders = validOrdersInRange.Count();
-
+                    // -- LẤY DANH SÁCH ID ĐƠN HỢP LỆ --
                     var validOrderIds = validOrdersInRange.Select(o => o.OrderID).ToList();
-
+                    // -- Tổng Sản phẩm đã Bán --
                     var totalProductsSold = db.OrderItems
                                               .Where(item => validOrderIds.Contains(item.OrderID))
                                               .Sum(item => (int?)item.Quantity) ?? 0;
@@ -120,7 +116,7 @@ namespace EmerceWebsite_Shop_master.Controllers
                                                        TotalQuantity = g.Sum(i => i.Quantity)
                                                    })
                                                    .FirstOrDefault();
-
+                    // -- BIẾN LƯU SP BÁN CHẠY NHẤT --
                     string bestSellingProduct = "N/A";
                     if (bestSellingProductQuery != null)
                     {

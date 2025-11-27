@@ -21,7 +21,7 @@ namespace EmerceWebsite_Shop_master.Controllers
         {
             try
             {
-                // 1. Lưu đơn khiếu nại
+                // Lưu đơn khiếu nại
                 SupportRequest req = new SupportRequest();
                 req.ShopID = shopId ?? 1; // Mặc định shop 1 nếu null
                 req.OrderID = orderId;
@@ -31,10 +31,9 @@ namespace EmerceWebsite_Shop_master.Controllers
 
                 db.SupportRequests.InsertOnSubmit(req);
                 db.SubmitChanges();
+                
+                // TẠO THÔNG BÁO TỰ ĐỘNG (ALERT)
 
-                // ====================================================
-                // 2. TẠO THÔNG BÁO TỰ ĐỘNG (ALERT)
-                // ====================================================
                 ShopNotification noti = new ShopNotification();
                 noti.ShopID = req.ShopID;
                 noti.Title = "📩 Khiếu nại mới #" + req.RequestID;
@@ -46,8 +45,6 @@ namespace EmerceWebsite_Shop_master.Controllers
 
                 db.ShopNotifications.InsertOnSubmit(noti);
                 db.SubmitChanges();
-                // ====================================================
-
                 TempData["ThongBaoSuccess"] = "Gửi khiếu nại thành công! Mã phiếu #" + req.RequestID;
                 return RedirectToAction("LichSuHoTro");
             }

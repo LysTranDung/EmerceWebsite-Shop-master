@@ -21,6 +21,7 @@
                 <div class="card-body">
 
                     @Html.HiddenFor(model => model.LogoUrl)
+                    @Html.HiddenFor(model => model.ShopPolicy) @* Giữ lại HiddenFor để tránh lỗi binding nếu Model vẫn chứa trường này *@
 
                     <div class="row mb-3">
                         <div class="col-lg-6">
@@ -30,6 +31,26 @@
                         <div class="col-lg-6">
                             <label for="ShopLocation" class="form-label">Địa chỉ</label>
                             @Html.TextBoxFor(model => model.ShopLocation, new { @class = "form-control", required = "required" })
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-lg-6">
+                            <label for="IsActive" class="form-label">Trạng thái hoạt động</label>
+                            @Html.DropDownListFor(model => model.IsActive, new SelectList(
+                                new[]
+                                {
+                                    new { Value = true, Text = "Đang hoạt động" },
+                                    new { Value = false, Text = "Tạm ngừng hoạt động" }
+                                },
+                                "Value",
+                                "Text",
+                                Model.IsActive
+                            ), new { @class = "form-control" })
+                        </div>
+                        <div class="col-lg-6">
+                            <label class="form-label text-white">Placeholder</label>
+                            <div class="form-control" style="opacity: 0;"></div>
                         </div>
                     </div>
 
@@ -52,30 +73,6 @@
                         </div>
                     </div>
 
-
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <label for="ShopPolicy" class="form-label">Chính sách Bán hàng</label>
-                            @Html.TextAreaFor(model => model.ShopPolicy, new { @class = "form-control", rows = "3" })
-                            <small class="form-text text-muted">Nhập chi tiết chính sách bán hàng.</small>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-lg-6">
-                            <label for="IsActive" class="form-label">Trạng thái hoạt động</label>
-                            @Html.DropDownListFor(model => model.IsActive, new SelectList(
-                                new[]
-                                {
-                                    new { Value = true, Text = "Đang hoạt động" },
-                                    new { Value = false, Text = "Tạm ngừng hoạt động" }
-                                },
-                                "Value",
-                                "Text",
-                                Model.IsActive
-                            ), new { @class = "form-control" })
-                        </div>
-                    </div>
                 </div>
                 <div class="card-footer">
                     <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Lưu Thay Đổi</button>
@@ -87,24 +84,21 @@
 
 @section scripts {
     <script>
-        // SỬA ĐỔI: Xử lý Form bằng AJAX để gửi cả dữ liệu và File
+
         $("#form-shop-info").submit(function (e) {
             e.preventDefault();
 
-            // Khởi tạo FormData object để bao gồm tất cả dữ liệu form, kể cả file
             var formData = new FormData(this);
 
             $.ajax({
                 type: "POST",
                 url: '@Url.Action("UpdateThongTin", "QLCH")',
                 data: formData,
-                // BẮT BUỘC: Ngăn jQuery xử lý dữ liệu và đặt Content-Type khi gửi file
                 processData: false,
                 contentType: false,
                 success: function (response) {
                     alert(response.message);
                     if (response.success) {
-                        // Reload trang để hiển thị ảnh mới và dữ liệu đã cập nhật
                         window.location.reload();
                     }
                 },

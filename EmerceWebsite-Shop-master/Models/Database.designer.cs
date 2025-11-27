@@ -63,15 +63,6 @@ namespace EmerceWebsite_Shop_master.Models
     partial void InsertProductShop(ProductShop instance);
     partial void UpdateProductShop(ProductShop instance);
     partial void DeleteProductShop(ProductShop instance);
-    partial void InsertReviewResponse(ReviewResponse instance);
-    partial void UpdateReviewResponse(ReviewResponse instance);
-    partial void DeleteReviewResponse(ReviewResponse instance);
-    partial void InsertReview(Review instance);
-    partial void UpdateReview(Review instance);
-    partial void DeleteReview(Review instance);
-    partial void InsertShipment(Shipment instance);
-    partial void UpdateShipment(Shipment instance);
-    partial void DeleteShipment(Shipment instance);
     partial void InsertShipper(Shipper instance);
     partial void UpdateShipper(Shipper instance);
     partial void DeleteShipper(Shipper instance);
@@ -90,6 +81,15 @@ namespace EmerceWebsite_Shop_master.Models
     partial void InsertSupportRequest(SupportRequest instance);
     partial void UpdateSupportRequest(SupportRequest instance);
     partial void DeleteSupportRequest(SupportRequest instance);
+    partial void InsertReviewResponse(ReviewResponse instance);
+    partial void UpdateReviewResponse(ReviewResponse instance);
+    partial void DeleteReviewResponse(ReviewResponse instance);
+    partial void InsertShipment(Shipment instance);
+    partial void UpdateShipment(Shipment instance);
+    partial void DeleteShipment(Shipment instance);
+    partial void InsertReview(Review instance);
+    partial void UpdateReview(Review instance);
+    partial void DeleteReview(Review instance);
     #endregion
 		
 		public DatabaseDataContext(string connection) : 
@@ -116,7 +116,10 @@ namespace EmerceWebsite_Shop_master.Models
 			OnCreated();
 		}
         public DatabaseDataContext() :
-base(global::System.Configuration.ConfigurationManager.ConnectionStrings["EcommerceDB_ShopConnectionString"].ConnectionString, mappingSource) => OnCreated();
+        base(global::System.Configuration.ConfigurationManager.ConnectionStrings["EcommerceDB_ShopConnectionString3"].ConnectionString, mappingSource)
+        {
+            OnCreated();
+        }
         public System.Data.Linq.Table<Account> Accounts
 		{
 			get
@@ -205,30 +208,6 @@ base(global::System.Configuration.ConfigurationManager.ConnectionStrings["Ecomme
 			}
 		}
 		
-		public System.Data.Linq.Table<ReviewResponse> ReviewResponses
-		{
-			get
-			{
-				return this.GetTable<ReviewResponse>();
-			}
-		}
-		
-		public System.Data.Linq.Table<Review> Reviews
-		{
-			get
-			{
-				return this.GetTable<Review>();
-			}
-		}
-		
-		public System.Data.Linq.Table<Shipment> Shipments
-		{
-			get
-			{
-				return this.GetTable<Shipment>();
-			}
-		}
-		
 		public System.Data.Linq.Table<Shipper> Shippers
 		{
 			get
@@ -276,6 +255,30 @@ base(global::System.Configuration.ConfigurationManager.ConnectionStrings["Ecomme
 				return this.GetTable<SupportRequest>();
 			}
 		}
+		
+		public System.Data.Linq.Table<ReviewResponse> ReviewResponses
+		{
+			get
+			{
+				return this.GetTable<ReviewResponse>();
+			}
+		}
+		
+		public System.Data.Linq.Table<Shipment> Shipments
+		{
+			get
+			{
+				return this.GetTable<Shipment>();
+			}
+		}
+		
+		public System.Data.Linq.Table<Review> Reviews
+		{
+			get
+			{
+				return this.GetTable<Review>();
+			}
+		}
 	}
 	
 	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Account")]
@@ -304,6 +307,8 @@ base(global::System.Configuration.ConfigurationManager.ConnectionStrings["Ecomme
 		
 		private EntityRef<ShopMaster> _ShopMaster;
 		
+		private EntitySet<ReviewResponse> _ReviewResponses;
+		
     #region Extensibility Method Definitions
     partial void OnLoaded();
     partial void OnValidate(System.Data.Linq.ChangeAction action);
@@ -330,6 +335,7 @@ base(global::System.Configuration.ConfigurationManager.ConnectionStrings["Ecomme
 		{
 			this._Customers = new EntitySet<Customer>(new Action<Customer>(this.attach_Customers), new Action<Customer>(this.detach_Customers));
 			this._ShopMaster = default(EntityRef<ShopMaster>);
+			this._ReviewResponses = new EntitySet<ReviewResponse>(new Action<ReviewResponse>(this.attach_ReviewResponses), new Action<ReviewResponse>(this.detach_ReviewResponses));
 			OnCreated();
 		}
 		
@@ -535,6 +541,19 @@ base(global::System.Configuration.ConfigurationManager.ConnectionStrings["Ecomme
 			}
 		}
 		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Account_ReviewResponse", Storage="_ReviewResponses", ThisKey="AccountID", OtherKey="ShopUserID")]
+		public EntitySet<ReviewResponse> ReviewResponses
+		{
+			get
+			{
+				return this._ReviewResponses;
+			}
+			set
+			{
+				this._ReviewResponses.Assign(value);
+			}
+		}
+		
 		public event PropertyChangingEventHandler PropertyChanging;
 		
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -562,6 +581,18 @@ base(global::System.Configuration.ConfigurationManager.ConnectionStrings["Ecomme
 		}
 		
 		private void detach_Customers(Customer entity)
+		{
+			this.SendPropertyChanging();
+			entity.Account = null;
+		}
+		
+		private void attach_ReviewResponses(ReviewResponse entity)
+		{
+			this.SendPropertyChanging();
+			entity.Account = this;
+		}
+		
+		private void detach_ReviewResponses(ReviewResponse entity)
 		{
 			this.SendPropertyChanging();
 			entity.Account = null;
@@ -2489,6 +2520,10 @@ base(global::System.Configuration.ConfigurationManager.ConnectionStrings["Ecomme
 		
 		private System.Nullable<bool> _IsDelete;
 		
+		private string _ProductFeature;
+		
+		private string _DescriptionDetails;
+		
 		private EntitySet<OrderItem> _OrderItems;
 		
 		private EntitySet<ProductCategory> _ProductCategories;
@@ -2515,6 +2550,10 @@ base(global::System.Configuration.ConfigurationManager.ConnectionStrings["Ecomme
     partial void OnBrandChanged();
     partial void OnIsDeleteChanging(System.Nullable<bool> value);
     partial void OnIsDeleteChanged();
+    partial void OnProductFeatureChanging(string value);
+    partial void OnProductFeatureChanged();
+    partial void OnDescriptionDetailsChanging(string value);
+    partial void OnDescriptionDetailsChanged();
     #endregion
 		
 		public Product()
@@ -2662,6 +2701,46 @@ base(global::System.Configuration.ConfigurationManager.ConnectionStrings["Ecomme
 					this._IsDelete = value;
 					this.SendPropertyChanged("IsDelete");
 					this.OnIsDeleteChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ProductFeature", DbType="NVarChar(MAX)")]
+		public string ProductFeature
+		{
+			get
+			{
+				return this._ProductFeature;
+			}
+			set
+			{
+				if ((this._ProductFeature != value))
+				{
+					this.OnProductFeatureChanging(value);
+					this.SendPropertyChanging();
+					this._ProductFeature = value;
+					this.SendPropertyChanged("ProductFeature");
+					this.OnProductFeatureChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_DescriptionDetails", DbType="NVarChar(MAX)")]
+		public string DescriptionDetails
+		{
+			get
+			{
+				return this._DescriptionDetails;
+			}
+			set
+			{
+				if ((this._DescriptionDetails != value))
+				{
+					this.OnDescriptionDetailsChanging(value);
+					this.SendPropertyChanging();
+					this._DescriptionDetails = value;
+					this.SendPropertyChanged("DescriptionDetails");
+					this.OnDescriptionDetailsChanged();
 				}
 			}
 		}
@@ -2954,809 +3033,6 @@ base(global::System.Configuration.ConfigurationManager.ConnectionStrings["Ecomme
 						this._ShopID = default(int);
 					}
 					this.SendPropertyChanged("Shop");
-				}
-			}
-		}
-		
-		public event PropertyChangingEventHandler PropertyChanging;
-		
-		public event PropertyChangedEventHandler PropertyChanged;
-		
-		protected virtual void SendPropertyChanging()
-		{
-			if ((this.PropertyChanging != null))
-			{
-				this.PropertyChanging(this, emptyChangingEventArgs);
-			}
-		}
-		
-		protected virtual void SendPropertyChanged(String propertyName)
-		{
-			if ((this.PropertyChanged != null))
-			{
-				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-			}
-		}
-	}
-	
-	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.ReviewResponse")]
-	public partial class ReviewResponse : INotifyPropertyChanging, INotifyPropertyChanged
-	{
-		
-		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
-		
-		private int _ResponseID;
-		
-		private System.Nullable<int> _ReviewID;
-		
-		private System.Nullable<int> _ShopUserID;
-		
-		private string _ResponseText;
-		
-		private System.Nullable<System.DateTime> _ResponseDate;
-		
-		private EntityRef<Review> _Review;
-		
-    #region Extensibility Method Definitions
-    partial void OnLoaded();
-    partial void OnValidate(System.Data.Linq.ChangeAction action);
-    partial void OnCreated();
-    partial void OnResponseIDChanging(int value);
-    partial void OnResponseIDChanged();
-    partial void OnReviewIDChanging(System.Nullable<int> value);
-    partial void OnReviewIDChanged();
-    partial void OnShopUserIDChanging(System.Nullable<int> value);
-    partial void OnShopUserIDChanged();
-    partial void OnResponseTextChanging(string value);
-    partial void OnResponseTextChanged();
-    partial void OnResponseDateChanging(System.Nullable<System.DateTime> value);
-    partial void OnResponseDateChanged();
-    #endregion
-		
-		public ReviewResponse()
-		{
-			this._Review = default(EntityRef<Review>);
-			OnCreated();
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ResponseID", DbType="Int NOT NULL", IsPrimaryKey=true)]
-		public int ResponseID
-		{
-			get
-			{
-				return this._ResponseID;
-			}
-			set
-			{
-				if ((this._ResponseID != value))
-				{
-					this.OnResponseIDChanging(value);
-					this.SendPropertyChanging();
-					this._ResponseID = value;
-					this.SendPropertyChanged("ResponseID");
-					this.OnResponseIDChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ReviewID", DbType="Int")]
-		public System.Nullable<int> ReviewID
-		{
-			get
-			{
-				return this._ReviewID;
-			}
-			set
-			{
-				if ((this._ReviewID != value))
-				{
-					if (this._Review.HasLoadedOrAssignedValue)
-					{
-						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
-					}
-					this.OnReviewIDChanging(value);
-					this.SendPropertyChanging();
-					this._ReviewID = value;
-					this.SendPropertyChanged("ReviewID");
-					this.OnReviewIDChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ShopUserID", DbType="Int")]
-		public System.Nullable<int> ShopUserID
-		{
-			get
-			{
-				return this._ShopUserID;
-			}
-			set
-			{
-				if ((this._ShopUserID != value))
-				{
-					this.OnShopUserIDChanging(value);
-					this.SendPropertyChanging();
-					this._ShopUserID = value;
-					this.SendPropertyChanged("ShopUserID");
-					this.OnShopUserIDChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ResponseText", DbType="NVarChar(MAX)")]
-		public string ResponseText
-		{
-			get
-			{
-				return this._ResponseText;
-			}
-			set
-			{
-				if ((this._ResponseText != value))
-				{
-					this.OnResponseTextChanging(value);
-					this.SendPropertyChanging();
-					this._ResponseText = value;
-					this.SendPropertyChanged("ResponseText");
-					this.OnResponseTextChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ResponseDate", DbType="DateTime")]
-		public System.Nullable<System.DateTime> ResponseDate
-		{
-			get
-			{
-				return this._ResponseDate;
-			}
-			set
-			{
-				if ((this._ResponseDate != value))
-				{
-					this.OnResponseDateChanging(value);
-					this.SendPropertyChanging();
-					this._ResponseDate = value;
-					this.SendPropertyChanged("ResponseDate");
-					this.OnResponseDateChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Review_ReviewResponse", Storage="_Review", ThisKey="ReviewID", OtherKey="ReviewID", IsForeignKey=true)]
-		public Review Review
-		{
-			get
-			{
-				return this._Review.Entity;
-			}
-			set
-			{
-				Review previousValue = this._Review.Entity;
-				if (((previousValue != value) 
-							|| (this._Review.HasLoadedOrAssignedValue == false)))
-				{
-					this.SendPropertyChanging();
-					if ((previousValue != null))
-					{
-						this._Review.Entity = null;
-						previousValue.ReviewResponses.Remove(this);
-					}
-					this._Review.Entity = value;
-					if ((value != null))
-					{
-						value.ReviewResponses.Add(this);
-						this._ReviewID = value.ReviewID;
-					}
-					else
-					{
-						this._ReviewID = default(Nullable<int>);
-					}
-					this.SendPropertyChanged("Review");
-				}
-			}
-		}
-		
-		public event PropertyChangingEventHandler PropertyChanging;
-		
-		public event PropertyChangedEventHandler PropertyChanged;
-		
-		protected virtual void SendPropertyChanging()
-		{
-			if ((this.PropertyChanging != null))
-			{
-				this.PropertyChanging(this, emptyChangingEventArgs);
-			}
-		}
-		
-		protected virtual void SendPropertyChanged(String propertyName)
-		{
-			if ((this.PropertyChanged != null))
-			{
-				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-			}
-		}
-	}
-	
-	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Reviews")]
-	public partial class Review : INotifyPropertyChanging, INotifyPropertyChanged
-	{
-		
-		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
-		
-		private int _ReviewID;
-		
-		private int _ProductID;
-		
-		private int _CustomerID;
-		
-		private System.Nullable<int> _Rating;
-		
-		private string _Comment;
-		
-		private System.Nullable<System.DateTime> _ReviewDate;
-		
-		private System.Nullable<bool> _IsDelete;
-		
-		private EntitySet<ReviewResponse> _ReviewResponses;
-		
-		private EntityRef<Customer> _Customer;
-		
-		private EntityRef<Product> _Product;
-		
-    #region Extensibility Method Definitions
-    partial void OnLoaded();
-    partial void OnValidate(System.Data.Linq.ChangeAction action);
-    partial void OnCreated();
-    partial void OnReviewIDChanging(int value);
-    partial void OnReviewIDChanged();
-    partial void OnProductIDChanging(int value);
-    partial void OnProductIDChanged();
-    partial void OnCustomerIDChanging(int value);
-    partial void OnCustomerIDChanged();
-    partial void OnRatingChanging(System.Nullable<int> value);
-    partial void OnRatingChanged();
-    partial void OnCommentChanging(string value);
-    partial void OnCommentChanged();
-    partial void OnReviewDateChanging(System.Nullable<System.DateTime> value);
-    partial void OnReviewDateChanged();
-    partial void OnIsDeleteChanging(System.Nullable<bool> value);
-    partial void OnIsDeleteChanged();
-    #endregion
-		
-		public Review()
-		{
-			this._ReviewResponses = new EntitySet<ReviewResponse>(new Action<ReviewResponse>(this.attach_ReviewResponses), new Action<ReviewResponse>(this.detach_ReviewResponses));
-			this._Customer = default(EntityRef<Customer>);
-			this._Product = default(EntityRef<Product>);
-			OnCreated();
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ReviewID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
-		public int ReviewID
-		{
-			get
-			{
-				return this._ReviewID;
-			}
-			set
-			{
-				if ((this._ReviewID != value))
-				{
-					this.OnReviewIDChanging(value);
-					this.SendPropertyChanging();
-					this._ReviewID = value;
-					this.SendPropertyChanged("ReviewID");
-					this.OnReviewIDChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ProductID", DbType="Int NOT NULL")]
-		public int ProductID
-		{
-			get
-			{
-				return this._ProductID;
-			}
-			set
-			{
-				if ((this._ProductID != value))
-				{
-					if (this._Product.HasLoadedOrAssignedValue)
-					{
-						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
-					}
-					this.OnProductIDChanging(value);
-					this.SendPropertyChanging();
-					this._ProductID = value;
-					this.SendPropertyChanged("ProductID");
-					this.OnProductIDChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_CustomerID", DbType="Int NOT NULL")]
-		public int CustomerID
-		{
-			get
-			{
-				return this._CustomerID;
-			}
-			set
-			{
-				if ((this._CustomerID != value))
-				{
-					if (this._Customer.HasLoadedOrAssignedValue)
-					{
-						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
-					}
-					this.OnCustomerIDChanging(value);
-					this.SendPropertyChanging();
-					this._CustomerID = value;
-					this.SendPropertyChanged("CustomerID");
-					this.OnCustomerIDChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Rating", DbType="Int")]
-		public System.Nullable<int> Rating
-		{
-			get
-			{
-				return this._Rating;
-			}
-			set
-			{
-				if ((this._Rating != value))
-				{
-					this.OnRatingChanging(value);
-					this.SendPropertyChanging();
-					this._Rating = value;
-					this.SendPropertyChanged("Rating");
-					this.OnRatingChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Comment", DbType="NVarChar(255)")]
-		public string Comment
-		{
-			get
-			{
-				return this._Comment;
-			}
-			set
-			{
-				if ((this._Comment != value))
-				{
-					this.OnCommentChanging(value);
-					this.SendPropertyChanging();
-					this._Comment = value;
-					this.SendPropertyChanged("Comment");
-					this.OnCommentChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ReviewDate", DbType="DateTime")]
-		public System.Nullable<System.DateTime> ReviewDate
-		{
-			get
-			{
-				return this._ReviewDate;
-			}
-			set
-			{
-				if ((this._ReviewDate != value))
-				{
-					this.OnReviewDateChanging(value);
-					this.SendPropertyChanging();
-					this._ReviewDate = value;
-					this.SendPropertyChanged("ReviewDate");
-					this.OnReviewDateChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_IsDelete", DbType="Bit")]
-		public System.Nullable<bool> IsDelete
-		{
-			get
-			{
-				return this._IsDelete;
-			}
-			set
-			{
-				if ((this._IsDelete != value))
-				{
-					this.OnIsDeleteChanging(value);
-					this.SendPropertyChanging();
-					this._IsDelete = value;
-					this.SendPropertyChanged("IsDelete");
-					this.OnIsDeleteChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Review_ReviewResponse", Storage="_ReviewResponses", ThisKey="ReviewID", OtherKey="ReviewID")]
-		public EntitySet<ReviewResponse> ReviewResponses
-		{
-			get
-			{
-				return this._ReviewResponses;
-			}
-			set
-			{
-				this._ReviewResponses.Assign(value);
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Customer_Review", Storage="_Customer", ThisKey="CustomerID", OtherKey="CustomerID", IsForeignKey=true)]
-		public Customer Customer
-		{
-			get
-			{
-				return this._Customer.Entity;
-			}
-			set
-			{
-				Customer previousValue = this._Customer.Entity;
-				if (((previousValue != value) 
-							|| (this._Customer.HasLoadedOrAssignedValue == false)))
-				{
-					this.SendPropertyChanging();
-					if ((previousValue != null))
-					{
-						this._Customer.Entity = null;
-						previousValue.Reviews.Remove(this);
-					}
-					this._Customer.Entity = value;
-					if ((value != null))
-					{
-						value.Reviews.Add(this);
-						this._CustomerID = value.CustomerID;
-					}
-					else
-					{
-						this._CustomerID = default(int);
-					}
-					this.SendPropertyChanged("Customer");
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Product_Review", Storage="_Product", ThisKey="ProductID", OtherKey="ProductID", IsForeignKey=true)]
-		public Product Product
-		{
-			get
-			{
-				return this._Product.Entity;
-			}
-			set
-			{
-				Product previousValue = this._Product.Entity;
-				if (((previousValue != value) 
-							|| (this._Product.HasLoadedOrAssignedValue == false)))
-				{
-					this.SendPropertyChanging();
-					if ((previousValue != null))
-					{
-						this._Product.Entity = null;
-						previousValue.Reviews.Remove(this);
-					}
-					this._Product.Entity = value;
-					if ((value != null))
-					{
-						value.Reviews.Add(this);
-						this._ProductID = value.ProductID;
-					}
-					else
-					{
-						this._ProductID = default(int);
-					}
-					this.SendPropertyChanged("Product");
-				}
-			}
-		}
-		
-		public event PropertyChangingEventHandler PropertyChanging;
-		
-		public event PropertyChangedEventHandler PropertyChanged;
-		
-		protected virtual void SendPropertyChanging()
-		{
-			if ((this.PropertyChanging != null))
-			{
-				this.PropertyChanging(this, emptyChangingEventArgs);
-			}
-		}
-		
-		protected virtual void SendPropertyChanged(String propertyName)
-		{
-			if ((this.PropertyChanged != null))
-			{
-				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-			}
-		}
-		
-		private void attach_ReviewResponses(ReviewResponse entity)
-		{
-			this.SendPropertyChanging();
-			entity.Review = this;
-		}
-		
-		private void detach_ReviewResponses(ReviewResponse entity)
-		{
-			this.SendPropertyChanging();
-			entity.Review = null;
-		}
-	}
-	
-	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Shipments")]
-	public partial class Shipment : INotifyPropertyChanging, INotifyPropertyChanged
-	{
-		
-		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
-		
-		private int _ShipmentID;
-		
-		private int _OrderID;
-		
-		private int _ShipperID;
-		
-		private System.Nullable<System.DateTime> _ShipmentDate;
-		
-		private System.Nullable<System.DateTime> _ReceivedDate;
-		
-		private string _ShipmentStatus;
-		
-		private System.Nullable<bool> _IsDelete;
-		
-		private EntityRef<Order> _Order;
-		
-		private EntityRef<Shipper> _Shipper;
-		
-    #region Extensibility Method Definitions
-    partial void OnLoaded();
-    partial void OnValidate(System.Data.Linq.ChangeAction action);
-    partial void OnCreated();
-    partial void OnShipmentIDChanging(int value);
-    partial void OnShipmentIDChanged();
-    partial void OnOrderIDChanging(int value);
-    partial void OnOrderIDChanged();
-    partial void OnShipperIDChanging(int value);
-    partial void OnShipperIDChanged();
-    partial void OnShipmentDateChanging(System.Nullable<System.DateTime> value);
-    partial void OnShipmentDateChanged();
-    partial void OnReceivedDateChanging(System.Nullable<System.DateTime> value);
-    partial void OnReceivedDateChanged();
-    partial void OnShipmentStatusChanging(string value);
-    partial void OnShipmentStatusChanged();
-    partial void OnIsDeleteChanging(System.Nullable<bool> value);
-    partial void OnIsDeleteChanged();
-    #endregion
-		
-		public Shipment()
-		{
-			this._Order = default(EntityRef<Order>);
-			this._Shipper = default(EntityRef<Shipper>);
-			OnCreated();
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ShipmentID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
-		public int ShipmentID
-		{
-			get
-			{
-				return this._ShipmentID;
-			}
-			set
-			{
-				if ((this._ShipmentID != value))
-				{
-					this.OnShipmentIDChanging(value);
-					this.SendPropertyChanging();
-					this._ShipmentID = value;
-					this.SendPropertyChanged("ShipmentID");
-					this.OnShipmentIDChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_OrderID", DbType="Int NOT NULL")]
-		public int OrderID
-		{
-			get
-			{
-				return this._OrderID;
-			}
-			set
-			{
-				if ((this._OrderID != value))
-				{
-					if (this._Order.HasLoadedOrAssignedValue)
-					{
-						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
-					}
-					this.OnOrderIDChanging(value);
-					this.SendPropertyChanging();
-					this._OrderID = value;
-					this.SendPropertyChanged("OrderID");
-					this.OnOrderIDChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ShipperID", DbType="Int NOT NULL")]
-		public int ShipperID
-		{
-			get
-			{
-				return this._ShipperID;
-			}
-			set
-			{
-				if ((this._ShipperID != value))
-				{
-					if (this._Shipper.HasLoadedOrAssignedValue)
-					{
-						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
-					}
-					this.OnShipperIDChanging(value);
-					this.SendPropertyChanging();
-					this._ShipperID = value;
-					this.SendPropertyChanged("ShipperID");
-					this.OnShipperIDChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ShipmentDate", DbType="DateTime")]
-		public System.Nullable<System.DateTime> ShipmentDate
-		{
-			get
-			{
-				return this._ShipmentDate;
-			}
-			set
-			{
-				if ((this._ShipmentDate != value))
-				{
-					this.OnShipmentDateChanging(value);
-					this.SendPropertyChanging();
-					this._ShipmentDate = value;
-					this.SendPropertyChanged("ShipmentDate");
-					this.OnShipmentDateChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ReceivedDate", DbType="DateTime")]
-		public System.Nullable<System.DateTime> ReceivedDate
-		{
-			get
-			{
-				return this._ReceivedDate;
-			}
-			set
-			{
-				if ((this._ReceivedDate != value))
-				{
-					this.OnReceivedDateChanging(value);
-					this.SendPropertyChanging();
-					this._ReceivedDate = value;
-					this.SendPropertyChanged("ReceivedDate");
-					this.OnReceivedDateChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ShipmentStatus", DbType="NVarChar(50)")]
-		public string ShipmentStatus
-		{
-			get
-			{
-				return this._ShipmentStatus;
-			}
-			set
-			{
-				if ((this._ShipmentStatus != value))
-				{
-					this.OnShipmentStatusChanging(value);
-					this.SendPropertyChanging();
-					this._ShipmentStatus = value;
-					this.SendPropertyChanged("ShipmentStatus");
-					this.OnShipmentStatusChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_IsDelete", DbType="Bit")]
-		public System.Nullable<bool> IsDelete
-		{
-			get
-			{
-				return this._IsDelete;
-			}
-			set
-			{
-				if ((this._IsDelete != value))
-				{
-					this.OnIsDeleteChanging(value);
-					this.SendPropertyChanging();
-					this._IsDelete = value;
-					this.SendPropertyChanged("IsDelete");
-					this.OnIsDeleteChanged();
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Order_Shipment", Storage="_Order", ThisKey="OrderID", OtherKey="OrderID", IsForeignKey=true)]
-		public Order Order
-		{
-			get
-			{
-				return this._Order.Entity;
-			}
-			set
-			{
-				Order previousValue = this._Order.Entity;
-				if (((previousValue != value) 
-							|| (this._Order.HasLoadedOrAssignedValue == false)))
-				{
-					this.SendPropertyChanging();
-					if ((previousValue != null))
-					{
-						this._Order.Entity = null;
-						previousValue.Shipments.Remove(this);
-					}
-					this._Order.Entity = value;
-					if ((value != null))
-					{
-						value.Shipments.Add(this);
-						this._OrderID = value.OrderID;
-					}
-					else
-					{
-						this._OrderID = default(int);
-					}
-					this.SendPropertyChanged("Order");
-				}
-			}
-		}
-		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Shipper_Shipment", Storage="_Shipper", ThisKey="ShipperID", OtherKey="ShipperID", IsForeignKey=true)]
-		public Shipper Shipper
-		{
-			get
-			{
-				return this._Shipper.Entity;
-			}
-			set
-			{
-				Shipper previousValue = this._Shipper.Entity;
-				if (((previousValue != value) 
-							|| (this._Shipper.HasLoadedOrAssignedValue == false)))
-				{
-					this.SendPropertyChanging();
-					if ((previousValue != null))
-					{
-						this._Shipper.Entity = null;
-						previousValue.Shipments.Remove(this);
-					}
-					this._Shipper.Entity = value;
-					if ((value != null))
-					{
-						value.Shipments.Add(this);
-						this._ShipperID = value.ShipperID;
-					}
-					else
-					{
-						this._ShipperID = default(int);
-					}
-					this.SendPropertyChanged("Shipper");
 				}
 			}
 		}
@@ -5038,6 +4314,850 @@ base(global::System.Configuration.ConfigurationManager.ConnectionStrings["Ecomme
 			{
 				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
 			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.ReviewResponse")]
+	public partial class ReviewResponse : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _ResponseID;
+		
+		private int _ReviewID;
+		
+		private System.Nullable<int> _ShopUserID;
+		
+		private string _ResponseText;
+		
+		private System.Nullable<System.DateTime> _ResponseDate;
+		
+		private EntityRef<Account> _Account;
+		
+		private EntityRef<Review> _Review;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnResponseIDChanging(int value);
+    partial void OnResponseIDChanged();
+    partial void OnReviewIDChanging(int value);
+    partial void OnReviewIDChanged();
+    partial void OnShopUserIDChanging(System.Nullable<int> value);
+    partial void OnShopUserIDChanged();
+    partial void OnResponseTextChanging(string value);
+    partial void OnResponseTextChanged();
+    partial void OnResponseDateChanging(System.Nullable<System.DateTime> value);
+    partial void OnResponseDateChanged();
+    #endregion
+		
+		public ReviewResponse()
+		{
+			this._Account = default(EntityRef<Account>);
+			this._Review = default(EntityRef<Review>);
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ResponseID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int ResponseID
+		{
+			get
+			{
+				return this._ResponseID;
+			}
+			set
+			{
+				if ((this._ResponseID != value))
+				{
+					this.OnResponseIDChanging(value);
+					this.SendPropertyChanging();
+					this._ResponseID = value;
+					this.SendPropertyChanged("ResponseID");
+					this.OnResponseIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ReviewID", DbType="Int NOT NULL")]
+		public int ReviewID
+		{
+			get
+			{
+				return this._ReviewID;
+			}
+			set
+			{
+				if ((this._ReviewID != value))
+				{
+					if (this._Review.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnReviewIDChanging(value);
+					this.SendPropertyChanging();
+					this._ReviewID = value;
+					this.SendPropertyChanged("ReviewID");
+					this.OnReviewIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ShopUserID", DbType="Int")]
+		public System.Nullable<int> ShopUserID
+		{
+			get
+			{
+				return this._ShopUserID;
+			}
+			set
+			{
+				if ((this._ShopUserID != value))
+				{
+					if (this._Account.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnShopUserIDChanging(value);
+					this.SendPropertyChanging();
+					this._ShopUserID = value;
+					this.SendPropertyChanged("ShopUserID");
+					this.OnShopUserIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ResponseText", DbType="NVarChar(MAX) NOT NULL", CanBeNull=false)]
+		public string ResponseText
+		{
+			get
+			{
+				return this._ResponseText;
+			}
+			set
+			{
+				if ((this._ResponseText != value))
+				{
+					this.OnResponseTextChanging(value);
+					this.SendPropertyChanging();
+					this._ResponseText = value;
+					this.SendPropertyChanged("ResponseText");
+					this.OnResponseTextChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ResponseDate", DbType="DateTime")]
+		public System.Nullable<System.DateTime> ResponseDate
+		{
+			get
+			{
+				return this._ResponseDate;
+			}
+			set
+			{
+				if ((this._ResponseDate != value))
+				{
+					this.OnResponseDateChanging(value);
+					this.SendPropertyChanging();
+					this._ResponseDate = value;
+					this.SendPropertyChanged("ResponseDate");
+					this.OnResponseDateChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Account_ReviewResponse", Storage="_Account", ThisKey="ShopUserID", OtherKey="AccountID", IsForeignKey=true)]
+		public Account Account
+		{
+			get
+			{
+				return this._Account.Entity;
+			}
+			set
+			{
+				Account previousValue = this._Account.Entity;
+				if (((previousValue != value) 
+							|| (this._Account.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._Account.Entity = null;
+						previousValue.ReviewResponses.Remove(this);
+					}
+					this._Account.Entity = value;
+					if ((value != null))
+					{
+						value.ReviewResponses.Add(this);
+						this._ShopUserID = value.AccountID;
+					}
+					else
+					{
+						this._ShopUserID = default(Nullable<int>);
+					}
+					this.SendPropertyChanged("Account");
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Review_ReviewResponse", Storage="_Review", ThisKey="ReviewID", OtherKey="ReviewID", IsForeignKey=true)]
+		public Review Review
+		{
+			get
+			{
+				return this._Review.Entity;
+			}
+			set
+			{
+				Review previousValue = this._Review.Entity;
+				if (((previousValue != value) 
+							|| (this._Review.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._Review.Entity = null;
+						previousValue.ReviewResponses.Remove(this);
+					}
+					this._Review.Entity = value;
+					if ((value != null))
+					{
+						value.ReviewResponses.Add(this);
+						this._ReviewID = value.ReviewID;
+					}
+					else
+					{
+						this._ReviewID = default(int);
+					}
+					this.SendPropertyChanged("Review");
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Shipments")]
+	public partial class Shipment : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _ShipmentID;
+		
+		private int _OrderID;
+		
+		private int _ShipperID;
+		
+		private System.Nullable<System.DateTime> _ShipmentDate;
+		
+		private System.Nullable<System.DateTime> _ReceivedDate;
+		
+		private string _ShipmentStatus;
+		
+		private System.Nullable<bool> _IsDelete;
+		
+		private EntityRef<Order> _Order;
+		
+		private EntityRef<Shipper> _Shipper;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnShipmentIDChanging(int value);
+    partial void OnShipmentIDChanged();
+    partial void OnOrderIDChanging(int value);
+    partial void OnOrderIDChanged();
+    partial void OnShipperIDChanging(int value);
+    partial void OnShipperIDChanged();
+    partial void OnShipmentDateChanging(System.Nullable<System.DateTime> value);
+    partial void OnShipmentDateChanged();
+    partial void OnReceivedDateChanging(System.Nullable<System.DateTime> value);
+    partial void OnReceivedDateChanged();
+    partial void OnShipmentStatusChanging(string value);
+    partial void OnShipmentStatusChanged();
+    partial void OnIsDeleteChanging(System.Nullable<bool> value);
+    partial void OnIsDeleteChanged();
+    #endregion
+		
+		public Shipment()
+		{
+			this._Order = default(EntityRef<Order>);
+			this._Shipper = default(EntityRef<Shipper>);
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ShipmentID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int ShipmentID
+		{
+			get
+			{
+				return this._ShipmentID;
+			}
+			set
+			{
+				if ((this._ShipmentID != value))
+				{
+					this.OnShipmentIDChanging(value);
+					this.SendPropertyChanging();
+					this._ShipmentID = value;
+					this.SendPropertyChanged("ShipmentID");
+					this.OnShipmentIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_OrderID", DbType="Int NOT NULL")]
+		public int OrderID
+		{
+			get
+			{
+				return this._OrderID;
+			}
+			set
+			{
+				if ((this._OrderID != value))
+				{
+					if (this._Order.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnOrderIDChanging(value);
+					this.SendPropertyChanging();
+					this._OrderID = value;
+					this.SendPropertyChanged("OrderID");
+					this.OnOrderIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ShipperID", DbType="Int NOT NULL")]
+		public int ShipperID
+		{
+			get
+			{
+				return this._ShipperID;
+			}
+			set
+			{
+				if ((this._ShipperID != value))
+				{
+					if (this._Shipper.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnShipperIDChanging(value);
+					this.SendPropertyChanging();
+					this._ShipperID = value;
+					this.SendPropertyChanged("ShipperID");
+					this.OnShipperIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ShipmentDate", DbType="DateTime")]
+		public System.Nullable<System.DateTime> ShipmentDate
+		{
+			get
+			{
+				return this._ShipmentDate;
+			}
+			set
+			{
+				if ((this._ShipmentDate != value))
+				{
+					this.OnShipmentDateChanging(value);
+					this.SendPropertyChanging();
+					this._ShipmentDate = value;
+					this.SendPropertyChanged("ShipmentDate");
+					this.OnShipmentDateChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ReceivedDate", DbType="DateTime")]
+		public System.Nullable<System.DateTime> ReceivedDate
+		{
+			get
+			{
+				return this._ReceivedDate;
+			}
+			set
+			{
+				if ((this._ReceivedDate != value))
+				{
+					this.OnReceivedDateChanging(value);
+					this.SendPropertyChanging();
+					this._ReceivedDate = value;
+					this.SendPropertyChanged("ReceivedDate");
+					this.OnReceivedDateChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ShipmentStatus", DbType="NVarChar(50)")]
+		public string ShipmentStatus
+		{
+			get
+			{
+				return this._ShipmentStatus;
+			}
+			set
+			{
+				if ((this._ShipmentStatus != value))
+				{
+					this.OnShipmentStatusChanging(value);
+					this.SendPropertyChanging();
+					this._ShipmentStatus = value;
+					this.SendPropertyChanged("ShipmentStatus");
+					this.OnShipmentStatusChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_IsDelete", DbType="Bit")]
+		public System.Nullable<bool> IsDelete
+		{
+			get
+			{
+				return this._IsDelete;
+			}
+			set
+			{
+				if ((this._IsDelete != value))
+				{
+					this.OnIsDeleteChanging(value);
+					this.SendPropertyChanging();
+					this._IsDelete = value;
+					this.SendPropertyChanged("IsDelete");
+					this.OnIsDeleteChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Order_Shipment", Storage="_Order", ThisKey="OrderID", OtherKey="OrderID", IsForeignKey=true)]
+		public Order Order
+		{
+			get
+			{
+				return this._Order.Entity;
+			}
+			set
+			{
+				Order previousValue = this._Order.Entity;
+				if (((previousValue != value) 
+							|| (this._Order.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._Order.Entity = null;
+						previousValue.Shipments.Remove(this);
+					}
+					this._Order.Entity = value;
+					if ((value != null))
+					{
+						value.Shipments.Add(this);
+						this._OrderID = value.OrderID;
+					}
+					else
+					{
+						this._OrderID = default(int);
+					}
+					this.SendPropertyChanged("Order");
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Shipper_Shipment", Storage="_Shipper", ThisKey="ShipperID", OtherKey="ShipperID", IsForeignKey=true)]
+		public Shipper Shipper
+		{
+			get
+			{
+				return this._Shipper.Entity;
+			}
+			set
+			{
+				Shipper previousValue = this._Shipper.Entity;
+				if (((previousValue != value) 
+							|| (this._Shipper.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._Shipper.Entity = null;
+						previousValue.Shipments.Remove(this);
+					}
+					this._Shipper.Entity = value;
+					if ((value != null))
+					{
+						value.Shipments.Add(this);
+						this._ShipperID = value.ShipperID;
+					}
+					else
+					{
+						this._ShipperID = default(int);
+					}
+					this.SendPropertyChanged("Shipper");
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Reviews")]
+	public partial class Review : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _ReviewID;
+		
+		private int _ProductID;
+		
+		private int _CustomerID;
+		
+		private System.Nullable<int> _Rating;
+		
+		private string _Comment;
+		
+		private System.Nullable<System.DateTime> _ReviewDate;
+		
+		private System.Nullable<bool> _IsDelete;
+		
+		private EntitySet<ReviewResponse> _ReviewResponses;
+		
+		private EntityRef<Customer> _Customer;
+		
+		private EntityRef<Product> _Product;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnReviewIDChanging(int value);
+    partial void OnReviewIDChanged();
+    partial void OnProductIDChanging(int value);
+    partial void OnProductIDChanged();
+    partial void OnCustomerIDChanging(int value);
+    partial void OnCustomerIDChanged();
+    partial void OnRatingChanging(System.Nullable<int> value);
+    partial void OnRatingChanged();
+    partial void OnCommentChanging(string value);
+    partial void OnCommentChanged();
+    partial void OnReviewDateChanging(System.Nullable<System.DateTime> value);
+    partial void OnReviewDateChanged();
+    partial void OnIsDeleteChanging(System.Nullable<bool> value);
+    partial void OnIsDeleteChanged();
+    #endregion
+		
+		public Review()
+		{
+			this._ReviewResponses = new EntitySet<ReviewResponse>(new Action<ReviewResponse>(this.attach_ReviewResponses), new Action<ReviewResponse>(this.detach_ReviewResponses));
+			this._Customer = default(EntityRef<Customer>);
+			this._Product = default(EntityRef<Product>);
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ReviewID", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int ReviewID
+		{
+			get
+			{
+				return this._ReviewID;
+			}
+			set
+			{
+				if ((this._ReviewID != value))
+				{
+					this.OnReviewIDChanging(value);
+					this.SendPropertyChanging();
+					this._ReviewID = value;
+					this.SendPropertyChanged("ReviewID");
+					this.OnReviewIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ProductID", DbType="Int NOT NULL")]
+		public int ProductID
+		{
+			get
+			{
+				return this._ProductID;
+			}
+			set
+			{
+				if ((this._ProductID != value))
+				{
+					if (this._Product.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnProductIDChanging(value);
+					this.SendPropertyChanging();
+					this._ProductID = value;
+					this.SendPropertyChanged("ProductID");
+					this.OnProductIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_CustomerID", DbType="Int NOT NULL")]
+		public int CustomerID
+		{
+			get
+			{
+				return this._CustomerID;
+			}
+			set
+			{
+				if ((this._CustomerID != value))
+				{
+					if (this._Customer.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnCustomerIDChanging(value);
+					this.SendPropertyChanging();
+					this._CustomerID = value;
+					this.SendPropertyChanged("CustomerID");
+					this.OnCustomerIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Rating", DbType="Int")]
+		public System.Nullable<int> Rating
+		{
+			get
+			{
+				return this._Rating;
+			}
+			set
+			{
+				if ((this._Rating != value))
+				{
+					this.OnRatingChanging(value);
+					this.SendPropertyChanging();
+					this._Rating = value;
+					this.SendPropertyChanged("Rating");
+					this.OnRatingChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Comment", DbType="NVarChar(255)")]
+		public string Comment
+		{
+			get
+			{
+				return this._Comment;
+			}
+			set
+			{
+				if ((this._Comment != value))
+				{
+					this.OnCommentChanging(value);
+					this.SendPropertyChanging();
+					this._Comment = value;
+					this.SendPropertyChanged("Comment");
+					this.OnCommentChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ReviewDate", DbType="DateTime")]
+		public System.Nullable<System.DateTime> ReviewDate
+		{
+			get
+			{
+				return this._ReviewDate;
+			}
+			set
+			{
+				if ((this._ReviewDate != value))
+				{
+					this.OnReviewDateChanging(value);
+					this.SendPropertyChanging();
+					this._ReviewDate = value;
+					this.SendPropertyChanged("ReviewDate");
+					this.OnReviewDateChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_IsDelete", DbType="Bit")]
+		public System.Nullable<bool> IsDelete
+		{
+			get
+			{
+				return this._IsDelete;
+			}
+			set
+			{
+				if ((this._IsDelete != value))
+				{
+					this.OnIsDeleteChanging(value);
+					this.SendPropertyChanging();
+					this._IsDelete = value;
+					this.SendPropertyChanged("IsDelete");
+					this.OnIsDeleteChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Review_ReviewResponse", Storage="_ReviewResponses", ThisKey="ReviewID", OtherKey="ReviewID")]
+		public EntitySet<ReviewResponse> ReviewResponses
+		{
+			get
+			{
+				return this._ReviewResponses;
+			}
+			set
+			{
+				this._ReviewResponses.Assign(value);
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Customer_Review", Storage="_Customer", ThisKey="CustomerID", OtherKey="CustomerID", IsForeignKey=true)]
+		public Customer Customer
+		{
+			get
+			{
+				return this._Customer.Entity;
+			}
+			set
+			{
+				Customer previousValue = this._Customer.Entity;
+				if (((previousValue != value) 
+							|| (this._Customer.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._Customer.Entity = null;
+						previousValue.Reviews.Remove(this);
+					}
+					this._Customer.Entity = value;
+					if ((value != null))
+					{
+						value.Reviews.Add(this);
+						this._CustomerID = value.CustomerID;
+					}
+					else
+					{
+						this._CustomerID = default(int);
+					}
+					this.SendPropertyChanged("Customer");
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Product_Review", Storage="_Product", ThisKey="ProductID", OtherKey="ProductID", IsForeignKey=true)]
+		public Product Product
+		{
+			get
+			{
+				return this._Product.Entity;
+			}
+			set
+			{
+				Product previousValue = this._Product.Entity;
+				if (((previousValue != value) 
+							|| (this._Product.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._Product.Entity = null;
+						previousValue.Reviews.Remove(this);
+					}
+					this._Product.Entity = value;
+					if ((value != null))
+					{
+						value.Reviews.Add(this);
+						this._ProductID = value.ProductID;
+					}
+					else
+					{
+						this._ProductID = default(int);
+					}
+					this.SendPropertyChanged("Product");
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+		
+		private void attach_ReviewResponses(ReviewResponse entity)
+		{
+			this.SendPropertyChanging();
+			entity.Review = this;
+		}
+		
+		private void detach_ReviewResponses(ReviewResponse entity)
+		{
+			this.SendPropertyChanging();
+			entity.Review = null;
 		}
 	}
 }

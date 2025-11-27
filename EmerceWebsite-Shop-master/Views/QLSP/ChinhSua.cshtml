@@ -1,4 +1,5 @@
-﻿@{
+﻿@model EmerceWebsite_Shop_master.Models.Product
+@{
     ViewBag.Title = "Chỉnh sửa Sản phẩm";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -16,11 +17,27 @@
         </div>
     </div>
 </div>
+
 <div class="app-content">
     <div class="container-fluid">
         <div class="row g-4">
             <div class="col-12">
-                <div class="card card-primary card-outline mb-4">
+
+                <div class="card card-info card-outline mb-4">
+                    <div class="card-header"><div class="card-title">🔍 Tìm kiếm Sản phẩm</div></div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-lg-10 mb-3">
+                                <input type="text" class="form-control" id="txt_Search_Query" placeholder="Nhập ID sản phẩm hoặc Tên sản phẩm" />
+                            </div>
+                            <div class="col-lg-2 mb-3">
+                                <button type="button" id="btn_search_product" class="btn btn-info w-100">Tìm kiếm</button>
+                            </div>
+                        </div>
+                        <div id="search_result_msg" class="text-danger"></div>
+                    </div>
+                </div>
+                <div class="card card-primary card-outline mb-4" id="edit_form_card" style="display:none;">
                     <div class="card-header"><div class="card-title">Thông tin sản phẩm</div></div>
                     <form id="form-product">
                         <input type="hidden" id="txt_ProductID_hide" name="txt_ProductID_hide" />
@@ -62,35 +79,71 @@
 @section scripts {
     <script>
     $(document).ready(function () {
-        // Lấy ID từ ViewBag đã được Controller gửi sang
-        var productId = '@ViewBag.ProductID';
+        // 1. Kiểm tra ID từ URL
+        // Đảm bảo parse thành số nguyên, nếu ViewBag rỗng/null, nó sẽ là 0
+        var productId = parseInt('@ViewBag.ProductID');
 
-        // Đoạn code JavaScript này chỉ chạy khi Controller đã đảm bảo có ID hợp lệ
-        loadProductDetails(productId);
+        if (productId > 0) {
+            // Tự động load nếu ID > 0
+            loadProductDetails(productId);
+            $("#txt_Search_Query").val(productId);
+        } else {
+            // Ẩn form nếu không có ID hợp lệ trên URL
+            $("#edit_form_card").hide();
+        }
+
+        // 2. Gán sự kiện cho nút tìm kiếm
+        $("#btn_search_product").click(function () {
+            var query = $("#txt_Search_Query").val().trim();
+            if (query === "") {
+                $("#search_result_msg").text("Vui lòng nhập ID sản phẩm.");
+                $("#edit_form_card").hide();
+                return;
+            }
+
+            // Chỉ tìm kiếm theo ID (là số nguyên)
+            if (!isNaN(query) && parseInt(query) > 0) {
+                loadProductDetails(parseInt(query));
+            } else {
+                $("#search_result_msg").text("❌ Lỗi: Vui lòng nhập ID sản phẩm hợp lệ (là một số).");
+                $("#edit_form_card").hide();
+            }
+        });
     });
 
     function loadProductDetails(id) {
+        $("#search_result_msg").text(""); // Xóa thông báo cũ
+
+        // Gán ID vào ô tìm kiếm trước khi gọi AJAX
+        $("#txt_Search_Query").val(id);
+
         $.ajax({
             type: "POST",
-            // Gọi Action GetProductDetails trong QLSPController
             url: '@Url.Action("GetProductDetails", "QLSP")',
             data: { id: id },
             dataType: "json",
             success: function (product) {
                 if (product) {
-                    // Điền dữ liệu vào form
+                    // Đổ dữ liệu vào form
                     $("#txt_ProductID_hide").val(product.ProductID);
                     $("#txt_ProductName").val(product.ProductName);
                     $("#txt_Description").val(product.ProductDescription);
                     $("#txt_Price").val(product.Price);
                     $("#txt_Stock").val(product.Stock);
                     $("#txt_Brand").val(product.Brand);
+
+                    // Hiện form chỉnh sửa
+                    $("#edit_form_card").show();
                 } else {
-                    alert("Không tìm thấy thông tin cho sản phẩm có ID = " + id);
+                    // Trường hợp API trả về null (ID không tồn tại trong DB)
+                    $("#search_result_msg").text("❌ Lỗi: Không tìm thấy sản phẩm có ID = " + id + " trong hệ thống.");
+                    $("#edit_form_card").hide();
                 }
             },
             error: function (data) {
-                alert("Đã xảy ra lỗi khi tải thông tin sản phẩm.");
+                // Lỗi kết nối hoặc lỗi server
+                $("#search_result_msg").text("⚠️ Lỗi hệ thống: Đã xảy ra lỗi khi tải thông tin sản phẩm.");
+                $("#edit_form_card").hide();
                 console.log(data);
             }
         });
@@ -103,15 +156,16 @@
         $.ajax({
             type: "POST",
             data: formData,
-            // Gọi Action Update trong QLSPController
             url: '@Url.Action("Update", "QLSP")',
             processData: false,
             contentType: false,
             cache: false,
             success: function (response) {
-                alert(response);
-                if (response.toLowerCase().includes("thành công")) {
+                if (response.success) {
+                    alert(response.message);
                     window.location.href = '@Url.Action("DSSP", "QLSP")';
+                } else {
+                    alert("Cập nhật thất bại: " + response.message);
                 }
             },
             error: function (data) {

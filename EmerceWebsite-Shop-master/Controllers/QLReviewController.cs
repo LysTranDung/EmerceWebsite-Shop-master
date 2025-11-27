@@ -1,8 +1,9 @@
-﻿using System;
-using System.Collections.Generic; // Cần thiết cho List
+﻿using EmerceWebsite_Shop_master.Models;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
-using EmerceWebsite_Shop_master.Models;
+// using EmerceWebsite_Shop_master.Models; 
 
 namespace EmerceWebsite_Shop_master.Controllers
 {
@@ -10,28 +11,20 @@ namespace EmerceWebsite_Shop_master.Controllers
     {
         private DatabaseDataContext db = new DatabaseDataContext();
 
-        // GET: QLReview
         public ActionResult QLReviewIndex()
         {
-            // Query dữ liệu và map vào ViewModel
             List<ReviewViewModel> reviewsData = db.Reviews
-                               .OrderByDescending(r => r.ReviewDate)
-                               .Select(r => new ReviewViewModel
-                               {
-                                   Review = r,
-                                   ProductName = r.Product.ProductName,
-                                   CustomerName = r.Customer.FullName,
-                                   // Lấy phản hồi đầu tiên
-                                   Response = r.ReviewResponses.FirstOrDefault()
-                               }).ToList();
+                .Select(r => new ReviewViewModel
+                {
+                    Review = r,
+                    ProductName = r.Product.ProductName,
+                    CustomerName = r.Customer.FullName,
+                    Response = r.ReviewResponses.FirstOrDefault()
+                }).ToList();
 
             ViewBag.Title = "Quản lý Đánh giá & Phản hồi";
-
-            // Truyền thẳng Model vào View
             return View(reviewsData);
         }
-
-        // POST: QLReview/RespondToReview
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult RespondToReview(int reviewId, string responseText)
@@ -59,7 +52,7 @@ namespace EmerceWebsite_Shop_master.Controllers
                 var newResponse = new ReviewResponse
                 {
                     ReviewID = reviewId,
-                    ShopUserID = 1, // ID Admin/Shop giả định
+                    ShopUserID = 1, 
                     ResponseText = responseText.Trim(),
                     ResponseDate = DateTime.Now
                 };
@@ -71,10 +64,12 @@ namespace EmerceWebsite_Shop_master.Controllers
                 db.SubmitChanges();
                 return Json(new { success = true, message = "Phản hồi đã được gửi/cập nhật thành công!" });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Json(new { success = false, message = "Lỗi Database khi lưu dữ liệu." });
+                string detailedError = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+
+                return Json(new { success = false, message = "LỖI DATABASE KHI LƯU DỮ LIỆU. Chi tiết: " + detailedError });
             }
-        }
+        } 
     }
 }

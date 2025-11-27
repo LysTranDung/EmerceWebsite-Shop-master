@@ -10,16 +10,13 @@ namespace EmerceWebsite_Shop_master.Controllers
     {
         DatabaseDataContext db = new DatabaseDataContext();
 
-        // 1. TRANG QUẢN LÝ THÔNG BÁO (HIỂN THỊ DANH SÁCH)
         public ActionResult ThongbaoIndex()
         {
-            int shopId = 1; // Giả định ID Shop
+            int shopId = 1;
             var list = db.ShopNotifications
                          .Where(n => n.ShopID == shopId)
                          .OrderByDescending(n => n.CreatedDate)
                          .ToList();
-
-            // Vào trang này coi như đã đọc hết
             foreach (var item in list.Where(x => x.IsRead == false))
             {
                 item.IsRead = true;
@@ -29,7 +26,7 @@ namespace EmerceWebsite_Shop_master.Controllers
             return View(list);
         }
 
-        // 2. API: Lấy dữ liệu cho Script chạy ngầm (để hiện Popup Alert)
+        // Lấy dữ liệu cho Script chạy ngầm 
         [HttpGet]
         public JsonResult GetNewNotifications()
         {

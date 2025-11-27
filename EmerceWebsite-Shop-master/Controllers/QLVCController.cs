@@ -11,13 +11,10 @@ namespace EmerceWebsite_Shop_master.Controllers
         DatabaseDataContext db = new DatabaseDataContext();
         int currentShopId = 1;
 
-        // View Danh Sách (Rỗng, chờ JS)
         public ActionResult DanhSach() { return View(); }
         public ActionResult TaoMoi() { return View(); }
 
-        // ================= API DATA ================= //
-
-        // API 1: LẤY DANH SÁCH VOUCHER (ĐÃ SỬA LỖI DATE FORMAT)
+        // LẤY DANH SÁCH VOUCHER 
         [HttpPost]
         public JsonResult GetDiscounts()
         {
@@ -34,11 +31,11 @@ namespace EmerceWebsite_Shop_master.Controllers
                                d.DiscountDescription,
                                d.Quantity,
                                d.DiscountStatus,
-                               d.StartDate, // Lấy nguyên DateTime gốc
-                               d.EndDate    // Lấy nguyên DateTime gốc
-                           }).ToList(); // <--- Lệnh này sẽ chạy SQL và lấy dữ liệu về RAM
+                               d.StartDate, 
+                               d.EndDate   
+                           }).ToList(); 
 
-            // BƯỚC 2: Xử lý Format ngày tháng bằng C# (LINQ to Objects)
+          
             var formattedList = rawList.Select(x => new
             {
                 x.DiscountID,
@@ -47,17 +44,15 @@ namespace EmerceWebsite_Shop_master.Controllers
                 x.DiscountDescription,
                 x.Quantity,
                 x.DiscountStatus,
-                // Bây giờ mới format sang chuỗi
                 StartDateStr = x.StartDate.HasValue ? x.StartDate.Value.ToString("dd/MM/yyyy") : "",
                 EndDateStr = x.EndDate.HasValue ? x.EndDate.Value.ToString("dd/MM/yyyy") : "",
-                // So sánh ngày tháng
                 IsExpired = x.EndDate.HasValue && x.EndDate.Value < DateTime.Now
             }).ToList();
 
             return Json(formattedList);
         }
 
-        // API 2: TẠO VOUCHER (KÈM THÔNG BÁO)
+        // TẠO VOUCHER (KÈM THÔNG BÁO)
         [HttpPost]
         public JsonResult Insert(Discount model)
         {
@@ -74,7 +69,7 @@ namespace EmerceWebsite_Shop_master.Controllers
                 db.DiscountShops.InsertOnSubmit(ds);
                 db.SubmitChanges();
 
-                // --- LOGIC THÔNG BÁO: VOUCHER MỚI ---
+                // --- THÔNG BÁO: VOUCHER MỚI ---
                 ShopNotification noti = new ShopNotification();
                 noti.ShopID = currentShopId;
                 noti.Title = "🎫 Voucher mới";
@@ -85,7 +80,6 @@ namespace EmerceWebsite_Shop_master.Controllers
                 noti.LinkUrl = "/QLVC/DanhSach";
                 db.ShopNotifications.InsertOnSubmit(noti);
                 db.SubmitChanges();
-                // ------------------------------------
 
                 return Json(new { success = true, message = "Thêm thành công!" });
             }
@@ -94,16 +88,41 @@ namespace EmerceWebsite_Shop_master.Controllers
 
         // API 3: XÓA
         [HttpPost]
+
+
         public JsonResult Delete(int id)
         {
             var d = db.Discounts.FirstOrDefault(x => x.DiscountID == id);
             if (d != null)
             {
+
+
+                // KIỂM TRA  Ngày hết hạn
+                if (d.EndDate.HasValue && d.EndDate.Value > DateTime.Now)
+                {
+                    return Json(new { success = false, message = "Không thể xóa. Voucher chưa hết hạn sử dụng." });
+                }
+
+          
+
+                if (d.Quantity.HasValue && d.Quantity.Value > 0)
+                {
+                 
+                    int timesUsed = 0;
+                    if (d.Quantity.Value > timesUsed) {
+                         return Json(new { success = false, message = "Không thể xóa vì Voucher vẫn còn lượt sử dụng." });
+                    }
+                  
+                }
+
+
+                // Nếu vượt qua tất cả các kiểm tra
                 d.IsDelete = true;
                 db.SubmitChanges();
-                return Json(new { success = true });
+
+                return Json(new { success = true, message = "Xóa Voucher thành công!" });
             }
-            return Json(new { success = false });
+            return Json(new { success = false, message = "Không tìm thấy Voucher cần xóa." });
         }
     }
 }

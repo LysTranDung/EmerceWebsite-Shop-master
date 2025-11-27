@@ -4,14 +4,21 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="app-content-header"><div class="container-fluid"><h3 class="mb-0">@ViewBag.Title</h3></div></div>
+<div class="app-content-header">
+    <div class="container-fluid">
+        <h3 class="mb-0">@ViewBag.Title</h3>
+    </div>
+</div>
 
 <div class="app-content">
     <div class="container-fluid">
         <div class="card card-primary card-outline mb-4">
-            <div class="card-header"><div class="card-title">Thông tin Voucher</div></div>
+            <div class="card-header">
+                <div class="card-title">Thông tin Voucher</div>
+            </div>
             <form id="form-discount">
                 <div class="card-body">
+
                     <div class="row">
                         <div class="col-lg-6 mb-3">
                             <label for="DiscountCode" class="form-label">Mã Voucher</label>
@@ -22,12 +29,14 @@
                             <input type="number" class="form-control" name="DiscountPercentage" id="DiscountPercentage" min="10" max="100" required />
                         </div>
                     </div>
+
                     <div class="row">
                         <div class="col-lg-12 mb-3">
                             <label for="DiscountDescription" class="form-label">Mô tả</label>
                             <textarea class="form-control" name="DiscountDescription" id="DiscountDescription" rows="2"></textarea>
                         </div>
                     </div>
+
                     <div class="row">
                         <div class="col-lg-4 mb-3">
                             <label for="Quantity" class="form-label">Số lượng phát hành</label>
@@ -42,6 +51,7 @@
                             <input type="date" class="form-control" name="EndDate" id="EndDate" required />
                         </div>
                     </div>
+
                     <div class="row">
                         <div class="col-lg-6 mb-3">
                             <label for="DiscountStatus" class="form-label">Trạng thái</label>
@@ -51,6 +61,7 @@
                             </select>
                         </div>
                     </div>
+
                 </div>
                 <div class="card-footer">
                     <button type="button" id="btn_submit_create" class="btn btn-primary">Tạo Voucher</button>
